@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Penny — Hi-Fi Prototype v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Mulish:wght@400;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; background:#181816; font-family:'Mulish',system-ui,sans-serif; overflow:hidden; }
+  body { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+  ::-webkit-scrollbar { width:0; }
+  input, button, select { font-family:inherit; }
+
+  .phone-wrap { position:relative; filter:drop-shadow(0 50px 100px rgba(0,0,0,.9)); }
+
+  .phone-bezel {
+    width:390px; height:852px; border-radius:54px;
+    background:linear-gradient(160deg,#2E2E2C,#1A1A18);
+    padding:10px; position:relative;
+  }
+  /* Side buttons */
+  .btn-side-r { position:absolute; right:-4px; top:160px; width:4px; height:72px;
+    background:#2A2A28; border-radius:0 3px 3px 0; }
+  .btn-side-l1 { position:absolute; left:-4px; top:130px; width:4px; height:44px;
+    background:#2A2A28; border-radius:3px 0 0 3px; }
+  .btn-side-l2 { position:absolute; left:-4px; top:184px; width:4px; height:44px;
+    background:#2A2A28; border-radius:3px 0 0 3px; }
+  .btn-side-l3 { position:absolute; left:-4px; top:248px; width:4px; height:64px;
+    background:#2A2A28; border-radius:3px 0 0 3px; }
+
+  .phone-screen {
+    width:100%; height:100%; border-radius:46px;
+    overflow:hidden; background:white; position:relative;
+    display:flex; flex-direction:column;
+  }
+  /* Dynamic island */
+  .phone-island {
+    position:absolute; top:13px; left:50%; transform:translateX(-50%);
+    width:120px; height:36px; background:#0E0E0C; border-radius:20px;
+    z-index:500; pointer-events:none; display:none;
+  }
+
+  .screen-in  { animation:sIn  .3s cubic-bezier(.4,0,.2,1) both; }
+  .screen-out { animation:sOut .3s cubic-bezier(.4,0,.2,1) both; }
+  @keyframes sIn  { from{transform:translateX(32px);opacity:0} to{transform:none;opacity:1} }
+  @keyframes sOut { from{transform:none;opacity:1} to{transform:translateX(-20px);opacity:0} }
+
+  /* Tweak Panel */
+  #tweak-panel {
+    position:fixed; bottom:20px; right:20px; background:#FFFFFF;
+    border-radius:20px; padding:20px; width:240px;
+    box-shadow:0 16px 48px rgba(0,0,0,.35); display:none; z-index:9999;
+  }
+  #tweak-panel h4 { font-family:'Playfair Display',serif; font-size:15px; font-weight:700;
+    color:#2D2D2D; margin:0 0 16px; }
+  .tw-row { display:flex; align-items:center; justify-content:space-between;
+    padding:8px 0; border-bottom:1px solid #F0EDE5; gap:8px; }
+  .tw-row:last-child { border-bottom:none; padding-bottom:0; }
+  .tw-label { font-size:11px; color:#7E7E79; font-weight:700; letter-spacing:.3px; font-family:'Mulish',sans-serif; }
+  select, input[type=color] { cursor:pointer; }
+
+  .hint {
+    position:fixed; bottom:14px; left:50%; transform:translateX(-50%);
+    background:rgba(255,255,255,.07); color:rgba(255,255,255,.35);
+    font-family:'Poppins',sans-serif; font-size:11px; padding:5px 16px;
+    border-radius:100px; letter-spacing:.4px; pointer-events:none; white-space:nowrap;
+  }
+
+  /* Screen map overlay */
+  #screen-map {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    background:rgba(24,24,22,.96); border-radius:20px; padding:24px;
+    display:none; z-index:8000; flex-direction:column; gap:8px;
+    max-width:340px; width:90%; backdrop-filter:blur(10px);
+  }
+  #screen-map h3 { font-family:'Playfair Display',serif; font-size:18px; color:white; margin:0 0 12px; }
+  .sm-btn { padding:8px 14px; border-radius:8px; background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.8); cursor:pointer;
+    font-family:'Mulish',sans-serif; font-size:12px; font-weight:700; text-align:left;
+    transition:background .15s; }
+  .sm-btn:hover { background:rgba(248,178,189,.2); color:white; }
+  .sm-close { position:absolute; top:12px; right:14px; background:none; border:none;
+    color:rgba(255,255,255,.4); cursor:pointer; font-size:18px; }
+</style>
+</head>
+<body>
+
+<div class="phone-wrap">
+  <div class="phone-bezel">
+    <div class="btn-side-r"></div>
+    <div class="btn-side-l1"></div>
+    <div class="btn-side-l2"></div>
+    <div class="btn-side-l3"></div>
+    <div class="phone-screen" id="app-root"></div>
+    <div class="phone-island"></div>
+  </div>
+</div>
+
+<div class="hint">← → arrow keys · M = screen map · T = tweaks</div>
+
+<!-- Screen map -->
+<div id="screen-map">
+  <h3>Screen Map</h3>
+  <button class="sm-close" onclick="document.getElementById('screen-map').style.display='none'">✕</button>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px" id="sm-grid"></div>
+</div>
+
+<!-- Tweaks -->
+<div id="tweak-panel">
+  <h4>✦ Tweaks</h4>
+  <div class="tw-row">
+    <span class="tw-label">Brand Green</span>
+    <input type="color" id="tw-green" value="#0C4524" style="width:36px;height:24px;border:none;border-radius:6px;padding:0"/>
+  </div>
+  <div class="tw-row">
+    <span class="tw-label">Brand Pink</span>
+    <input type="color" id="tw-pink" value="#F8B2BD" style="width:36px;height:24px;border:none;border-radius:6px;padding:0"/>
+  </div>
+  <div class="tw-row">
+    <span class="tw-label">Brand Sand</span>
+    <input type="color" id="tw-sand" value="#E9DAAB" style="width:36px;height:24px;border:none;border-radius:6px;padding:0"/>
+  </div>
+  <div class="tw-row">
+    <span class="tw-label">Jump to Screen</span>
+    <select id="tw-screen" style="font-size:10px;border:1px solid #ddd;border-radius:6px;padding:2px 4px;max-width:120px;color:#2D2D2D">
+      <option value="welcome">Welcome</option>
+      <option value="login">Login</option>
+      <option value="createAccount">Create Account</option>
+      <option value="verifyEmail">Verify Email</option>
+      <option value="onboardTask">Onboard Intro</option>
+      <option value="prioritizeSelect">Select Priorities</option>
+      <option value="prioritizeTournament">Rank Priorities</option>
+      <option value="priorityResult">Priority Result</option>
+      <option value="home">Home</option>
+      <option value="challengeDetail">Challenge Detail</option>
+      <option value="challengesList">All Challenges</option>
+      <option value="notification">Notifications</option>
+      <option value="spending">Spending</option>
+      <option value="goals">Goals</option>
+      <option value="adjustment">Adjustment</option>
+      <option value="profile">Profile</option>
+      <option value="achievements">Achievements</option>
+      <option value="categoryDetail">Category Detail</option>
+    </select>
+  </div>
+</div>
+
+<script type="text/babel" src="penny-components.jsx"></script>
+<script type="text/babel" src="penny-auth.jsx"></script>
+<script type="text/babel" src="penny-main.jsx"></script>
+<script type="text/babel" src="penny-screens2.jsx"></script>
+<script type="text/babel" src="penny-screens3.jsx"></script>
+
+<script type="text/babel">
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "green": "#0C4524",
+  "pink":  "#F8B2BD",
+  "sand":  "#E9DAAB"
+}/*EDITMODE-END*/;
+
+const MAIN_TABS = ['home','spending','goals','profile'];
+const ALL_SCREENS = [
+  'welcome','login','createAccount','verifyEmail','onboardTask',
+  'prioritizeSelect','prioritizeTournament','priorityResult',
+  'home','challengeDetail','challengesList','notification','spending','goals','adjustment','profile',
+  'categoryDetail','achievements'
+];
+const SCREEN_LABELS = {
+  welcome:'Welcome', login:'Login', createAccount:'Create Account',
+  verifyEmail:'Verify Email', onboardTask:'Onboard Intro',
+  prioritizeSelect:'Select Priorities', prioritizeTournament:'Rank 1v1',
+  priorityResult:'Priority Result', home:'Home', challengeDetail:'Challenge Detail',
+  challengesList:'All Challenges', notification:'Notifications', spending:'Spending Report',
+  goals:'Goals', adjustment:'Adjustment', profile:'Profile',
+  categoryDetail:'Category Detail', achievements:'Achievements'
+};
+
+function App() {
+  const init = () => { try { return localStorage.getItem('penny_v2_screen')||'welcome'; } catch { return 'welcome'; }};
+  const [screen,  setScreen]    = React.useState(init);
+  const [tab,     setTab]       = React.useState('home');
+  const [animKey, setAnimKey]   = React.useState(0);
+  const [priorities, setPriorities] = React.useState([]);
+  const [ranked,     setRanked]     = React.useState([]);
+  const [catId,      setCatId]       = React.useState('dining');
+  const [logTask,    setLogTask]     = React.useState(null);
+  const [logOpen,    setLogOpen]     = React.useState(false);
+
+  React.useEffect(()=>{ try{localStorage.setItem('penny_v2_screen',screen);}catch{} },[screen]);
+
+  // Build screen-map buttons
+  React.useEffect(()=>{
+    const grid = document.getElementById('sm-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    ALL_SCREENS.forEach(s => {
+      const b = document.createElement('button');
+      b.className = 'sm-btn';
+      b.textContent = SCREEN_LABELS[s]||s;
+      b.onclick = () => { nav(s); document.getElementById('screen-map').style.display='none'; };
+      grid.appendChild(b);
+    });
+  }, []);
+
+  // Tweaks + keyboard
+  React.useEffect(()=>{
+    const onMsg = e => {
+      if (e.data?.type==='__activate_edit_mode')   document.getElementById('tweak-panel').style.display='block';
+      if (e.data?.type==='__deactivate_edit_mode') document.getElementById('tweak-panel').style.display='none';
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({type:'__edit_mode_available'},'*');
+
+    const twGreen = document.getElementById('tw-green');
+    const twPink  = document.getElementById('tw-pink');
+    const twSand  = document.getElementById('tw-sand');
+    const twScr   = document.getElementById('tw-screen');
+
+    const applyTweak = () => {
+      P.color.green     = twGreen.value;
+      P.color.aligned   = twGreen.value;
+      P.color.greenLight= twGreen.value+'22';
+      P.color.pink      = twPink.value;
+      P.color.pinkLight = twPink.value+'44';
+      P.color.sand      = twSand.value;
+      P.color.sandLight = twSand.value+'88';
+    };
+
+    twGreen.oninput = () => { applyTweak(); window.parent.postMessage({type:'__edit_mode_set_keys',edits:{green:twGreen.value}},'*'); };
+    twPink.oninput  = () => { applyTweak(); window.parent.postMessage({type:'__edit_mode_set_keys',edits:{pink:twPink.value}},'*'); };
+    twSand.oninput  = () => { applyTweak(); };
+    twScr.onchange  = e => nav(e.target.value);
+
+    const onKey = e => {
+      if (e.key==='ArrowRight') { const i=ALL_SCREENS.indexOf(screen); if(i<ALL_SCREENS.length-1) nav(ALL_SCREENS[i+1]); }
+      if (e.key==='ArrowLeft')  { const i=ALL_SCREENS.indexOf(screen); if(i>0) nav(ALL_SCREENS[i-1]); }
+      if (e.key==='m'||e.key==='M') {
+        const m=document.getElementById('screen-map');
+        m.style.display = m.style.display==='none'?'flex':'none';
+      }
+      if (e.key==='t'||e.key==='T') {
+        const p=document.getElementById('tweak-panel');
+        p.style.display = p.style.display==='none'?'block':'none';
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return ()=>{ window.removeEventListener('message',onMsg); window.removeEventListener('keydown',onKey); };
+  }, [screen]);
+
+  const nav = (s, extra) => {
+    if (extra?.catId) setCatId(extra.catId);
+    setScreen(s); setAnimKey(k=>k+1);
+    if (MAIN_TABS.includes(s)) setTab(s);
+    try{ document.getElementById('tw-screen').value=s; }catch{}
+  };
+  const navCat  = (id)   => nav('categoryDetail', {catId:id});
+  const navLog  = (task) => { setLogTask(task); setLogOpen(true); };
+
+  const renderScreen = () => {
+    switch(screen) {
+      case 'welcome':              return <ScreenWelcome nav={nav}/>;
+      case 'login':                return <ScreenLogin nav={nav}/>;
+      case 'createAccount':        return <ScreenCreateAccount nav={nav}/>;
+      case 'verifyEmail':          return <ScreenVerifyEmail nav={nav}/>;
+      case 'onboardTask':          return <ScreenOnboardTask nav={nav}/>;
+      case 'prioritizeSelect':     return <ScreenPrioritizeSelect nav={nav} setPriorities={setPriorities}/>;
+      case 'prioritizeTournament': return <ScreenPrioritizeTournament nav={nav} priorities={priorities} setRanked={setRanked}/>;
+      case 'priorityResult':       return <ScreenPriorityResult nav={nav} ranked={ranked} priorities={priorities}/>;
+      case 'home':                 return <ScreenHome onTab={nav} nav={nav} navCat={navCat} navLog={navLog}/>;
+      case 'challengesList':        return <ScreenChallengesList nav={nav}/>;
+      case 'challengeDetail':      return <ScreenChallengeDetailV2 nav={nav}/>;
+      case 'notification':         return <ScreenNotification nav={nav}/>;
+      case 'spending':             return <ScreenSpendingV2 onTab={nav} navCat={navCat}/>;
+      case 'goals':                return <ScreenGoals onTab={nav} nav={nav}/>;
+      case 'adjustment':           return <ScreenAdjustment nav={nav}/>;
+      case 'categoryDetail':       return <ScreenCategoryDetail nav={nav} catId={catId}/>;
+      case 'profile':              return <ScreenProfileV2 nav={nav}/>;
+      case 'achievements':         return <ScreenAchievements nav={nav}/>;
+      default:                     return <ScreenWelcome nav={nav}/>;
+    
+    }
+  };
+
+  return (
+    <div style={{width:'100%',height:'100%',display:'flex',flexDirection:'column',
+      backgroundColor:P.color.white, overflow:'hidden'}}>
+      <div key={animKey} className="screen-in"
+        style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+        {renderScreen()}
+      </div>
+      <BottomNav active={MAIN_TABS.includes(screen) ? screen : tab} onTab={nav}/>
+      <LogTransactionSheet open={logOpen} onClose={()=>setLogOpen(false)}
+        task={logTask} onLogged={()=>{}}/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app-root')).render(<App/>);
+</script>
+</body>
+</html>
