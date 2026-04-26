@@ -533,7 +533,6 @@ function ScreenWelcome({ nav }) {
         }} variant="primary" />
         <PBtn label="Have an account" variant="ghost" onClick={() => nav('login', { entry:'existing' })} />
       </div>
-      <HomeIndicator />
     </div>
   );
 }
@@ -575,7 +574,6 @@ function ScreenOnboardingIntro({ nav }) {
         <PBtn label="Create my account" onClick={() => nav('createAccount', { entry:'new' })}/>
         <PBtn label="I already have an account" variant="ghost" onClick={() => nav('login', { entry:'existing' })}/>
       </div>
-      <HomeIndicator />
     </div>
   );
 }
@@ -616,7 +614,6 @@ function ScreenLogin({ nav }) {
           </button>
         </p>
       </div>
-      <HomeIndicator />
     </div>
   );
 }
@@ -653,7 +650,6 @@ function ScreenCreateAccount({ nav }) {
           <span style={{ color:P.color.green, fontWeight:700 }}>Privacy Policy</span>
         </p>
       </div>
-      <HomeIndicator />
     </div>
   );
 }
@@ -703,7 +699,6 @@ function ScreenVerifyEmail({ nav }) {
           </button>
         </p>
       </div>
-      <HomeIndicator />
     </div>
   );
 }
@@ -756,7 +751,6 @@ function ScreenOnboardTask({ nav }) {
       <div style={{ width:'100%' }}>
         <PBtn label="Let's Go" onClick={() => nav('prioritizeSelect')} />
       </div>
-      <HomeIndicator />
     </div>
   );
 }
@@ -842,7 +836,6 @@ function ScreenPrioritizeSelect({ nav, setPriorities }) {
           onClick={() => { setPriorities(selected); nav('prioritizeTournament'); }}
           style={{ opacity: canContinue ? 1 : .4, pointerEvents: canContinue ? 'auto':'none' }} />
       </div>
-      <HomeIndicator />
     </div>
   );
 }
@@ -975,7 +968,6 @@ function ScreenPrioritizeTournament({ nav, priorities, setRanked }) {
           They're equally important →
         </button>
       </div>
-      <HomeIndicator />
     </div>
   );
 }
@@ -1038,7 +1030,6 @@ function ScreenPriorityResult({ nav, ranked, priorities }) {
           <PBtn label="Continue to Penny →" onClick={() => nav('home')} />
         </div>
       </div>
-      <HomeIndicator />
     </div>
   );
 }
@@ -1441,7 +1432,6 @@ function ScreenNotification({ nav }) {
         <BottomLineNote pad="14px 0 0" />
       </div>
       <BackBtn onClick={() => nav('__back__')} />
-      <HomeIndicator />
     </div>
   );
 }
@@ -2241,14 +2231,10 @@ function GuidePopup({ open, onClose }) {
           <div>
             <p style={{ margin:'0 0 3px', fontFamily:P.font.display, fontWeight:700, fontSize:26 }}>I&apos;m Penny 🐽</p>
             <p style={{ margin:0, fontFamily:P.font.body, fontSize:13, color:P.color.ink2, lineHeight:1.55 }}>
-              I can guide you through smarter spending and cheer you on. Want automated tracking too?
+              I can guide you through smarter spending and cheer you on.
             </p>
           </div>
         </div>
-        <a href="https://plaid.com" target="_blank" rel="noopener noreferrer"
-          style={{ marginTop:14, display:'inline-flex', alignItems:'center', gap:6, color:P.color.green, fontFamily:P.font.body, fontWeight:700, fontSize:13, textDecoration:'none' }}>
-          Connect your bank guide <Icon name="chevRight" size={14} color={P.color.green}/>
-        </a>
         <button onClick={onClose} style={{ marginTop:14, width:'100%', height:44, border:'none', borderRadius:22, backgroundColor:P.color.green, color:P.color.white, cursor:'pointer', fontFamily:P.font.body, fontWeight:700 }}>
           Start with Penny
         </button>
