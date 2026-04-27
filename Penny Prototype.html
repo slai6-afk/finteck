@@ -161,7 +161,7 @@ const P = {
     black:     '#2D2D2D',
     white:     '#FFFFFF',
     // Surfaces
-    cream:     '#FBF7F2',
+    cream:     '#FDF8F6',
     pinkLight: '#FDEFF1',
     sandLight: '#F7F2E6',
     greenLight:'#E6EFE8',
@@ -486,12 +486,13 @@ function CatIcon({ id, size=44, bg=P.color.stone, color=P.color.black }) {
 }
 
 // ─── PIG MASCOT ──────────────────────────────────────────────────
-function PigMascot({ size=120, style:s={} }) {
-  // Use the Figma x3 export to keep all pig instances crisp.
+function PigMascot({ size=120, style:s={}, onDark=false }) {
+  // Line pig on light UI: dark strokes. On green/dark hero: pale/white strokes.
+  const src = onDark ? FIGMA_PIG_ICON_LIGHT : FIGMA_PIG_ICON_DARK;
   const h = Math.round(size / 1.38);
   return (
     <img
-      src={FIGMA_PIG_ICON_DARK}
+      src={src}
       width={size}
       height={h}
       style={{ objectFit:'contain', display:'block', ...s }}
@@ -1122,6 +1123,7 @@ const NOTIFICATIONS = [
 const FIGMA_CHALLENGE_PIG_X3 = 'assets/challenge-pig-stage.png';
 const FIGMA_SPENDING_PIG_CARD = 'assets/spending-pig-card.png';
 const FIGMA_PIG_ICON_DARK = 'assets/penny-pig-icon-dark.png';
+const FIGMA_PIG_ICON_LIGHT = 'assets/penny-pig-icon-light.png';
 
 // ── Home Screen ───────────────────────────────────────────────────
 function ScreenHome({ onTab, nav, navCat }) {
@@ -2045,7 +2047,7 @@ function ScreenProfile({ nav }) {
           </p>
         </div>
         <img
-          src={FIGMA_PIG_ICON_DARK}
+          src={FIGMA_PIG_ICON_LIGHT}
           alt="Penny icon"
           style={{ marginLeft:'auto', flexShrink:0, width:60, height:48, objectFit:'contain', display:'block', opacity:.96 }}
         />
@@ -2752,7 +2754,7 @@ function ScreenChallengesList({ nav }) {
                       fontWeight:700 }}>Day 5/{c.days}</span>
                   </div>
                 </div>
-                <PigMascot size={56} style={{ flexShrink:0 }} />
+                <PigMascot size={56} style={{ flexShrink:0 }} onDark />
               </div>
             </div>
           ))}
@@ -3493,7 +3495,7 @@ function ScreenChallengeDetailV2({ nav }) {
               Zero non-essential purchases for 7 days
             </p>
           </div>
-          <PigMascot size={72} style={{ flexShrink:0 }} />
+          <PigMascot size={72} style={{ flexShrink:0 }} onDark />
         </div>
       </div>
 
@@ -3526,10 +3528,11 @@ function ScreenChallengeDetailV2({ nav }) {
             style={{
               width:'239px',
               height:'332px',
-              objectFit:'cover',
+              objectFit:'contain',
               imageRendering:'-webkit-optimize-contrast',
               borderRadius:20,
-              display:'block'
+              display:'block',
+              backgroundColor:'transparent'
             }}
           />
         </div>
@@ -4805,7 +4808,7 @@ function ScreenProfileV2({ nav, saveGoals }) {
               color:'rgba(255,255,255,.65)', margin:0 }}>Keep it up — you're on a roll</p>
           </div>
           <img
-            src={FIGMA_PIG_ICON_DARK}
+            src={FIGMA_PIG_ICON_LIGHT}
             alt="Penny icon"
             style={{ marginLeft:'auto', flexShrink:0, width:58, height:46, objectFit:'contain', display:'block', opacity:.96 }}
           />
