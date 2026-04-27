@@ -161,16 +161,16 @@ const P = {
     black:     '#2D2D2D',
     white:     '#FFFFFF',
     // Surfaces
-    cream:     '#FDF8F6',
-    pinkLight: '#FEF1F3',
-    sandLight: '#FAF6E8',
-    greenLight:'#E5EFE9',
+    cream:     '#FBF7F2',
+    pinkLight: '#FDEFF1',
+    sandLight: '#F7F2E6',
+    greenLight:'#E6EFE8',
     // Ink scale
     ink2:      '#4A4A46',
-    ink3:      '#66635E',
-    ink4:      '#8F8A82',
-    border:    '#EAE6DE',
-    stone:     '#F0EDE5',
+    ink3:      '#6D685F',
+    ink4:      '#989186',
+    border:    'transparent',
+    stone:     '#F3EEE5',
     // Semantic
     aligned:      '#0C4524',
     neutral:      '#8B6A30',
@@ -184,15 +184,15 @@ const P = {
   },
   font: {
     display: '"Playfair Display", Georgia, serif',
-    body:    '"Mulish", system-ui, sans-serif',
+    body:    '"Poppins", system-ui, sans-serif',
     ui:      '"Poppins", system-ui, sans-serif',
   },
   r: { sm:8, md:12, lg:20, xl:28, pill:100 },
   sp: { xs:4, sm:8, md:16, lg:24, xl:32 },
   shadow: {
-    sm: '0 1px 4px rgba(44,44,40,.07)',
-    md: '0 4px 16px rgba(44,44,40,.10)',
-    lg: '0 8px 32px rgba(44,44,40,.14)',
+    sm: 'none',
+    md: 'none',
+    lg: 'none',
   },
 };
 
@@ -283,9 +283,10 @@ const CAT_META = {
 
 // ─── STATUS BAR (Figma node 30:6354) ─────────────────────────────
 const FIGMA_STATUSBAR_ICONS = 'https://www.figma.com/api/mcp/asset/6fe44907-0268-44c8-a134-efbb0dff2591';
-function StatusBar({ light=false }) {
-  const isDarkMode = !!light; // true = white status bar content on dark backgrounds
-  const timeColor = isDarkMode ? '#FFFFFF' : '#000000';
+function StatusBar({ light=false, mode='dark' }) {
+  const resolvedMode = light ? 'light' : mode;
+  const isLightMode = resolvedMode === 'light'; // white content on dark backgrounds
+  const timeColor = isLightMode ? '#FFFFFF' : '#000000';
   return (
     <div style={{ position:'absolute', top:0, left:0, right:0, height:60,
       display:'flex', alignItems:'center', zIndex:100, pointerEvents:'none' }}>
@@ -301,8 +302,8 @@ function StatusBar({ light=false }) {
           style={{
             position:'absolute', right:14, top:'50%', transform:'translateY(-50%)',
             width:68, height:14, objectFit:'contain',
-            filter:isDarkMode ? 'brightness(0) invert(1)' : 'none',
-            opacity:isDarkMode ? 0.96 : 1
+            filter:isLightMode ? 'brightness(0) invert(1)' : 'none',
+            opacity:isLightMode ? 0.96 : 1
           }}
         />
       </div>
@@ -349,7 +350,7 @@ function BottomNav({ active, onTab, guideTab }) {
   ];
   return (
     <div style={{ position:'absolute', bottom:0, left:0, right:0, height:84,
-      backgroundColor:P.color.white, borderTop:`1px solid ${P.color.border}`,
+      backgroundColor:P.color.white, borderTop:'none',
       display:'flex', alignItems:'flex-start', paddingTop:8, zIndex:50 }}>
       {tabs.map(t => {
         const isActive = active === t.id;
@@ -485,10 +486,13 @@ function CatIcon({ id, size=44, bg=P.color.stone, color=P.color.black }) {
 
 // ─── PIG MASCOT ──────────────────────────────────────────────────
 function PigMascot({ size=120, style:s={} }) {
-  // aspect ratio: 185×134 → width:height = 1.38:1
+  // Use the Figma x3 export to keep all pig instances crisp.
   const h = Math.round(size / 1.38);
   return (
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALkAAACGCAYAAACBgSskAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAOdEVYdFNvZnR3YXJlAEZpZ21hnrGWYwAAGjxJREFUeAHtXUt229aWPVL8vKr3lAEkZjIBy71a+RnuVS9yr3qWm9WK1KpVLVEjkDUCy73qRRqBYeezXs/yCMIkAwjdLCex6uzLfajDKwAEQJESiLvXogiBAPjBvueee74iCQkJCQndxoYkXBuyLBv8/fff27q5dXFxMdjY2Pgnt7fwjGN038CO1/0jd/pYXxvpvnd8Hn348GF89+7dUZ7nY0lojUTyFvjiiy+2P/roI5D5Psm8jWdZHkDyc32fcyX+r3i+c+fOeSJ/PSSSz4FK5y2VzjsyITSIHSR11TkmifGM/3X7Vz6PNzc3Z4jpBgeueY/PeAzmvY/iXB94r1cg/o8//phLwhUkkkcgqTPdfKiPnQoJDbLm+giSVc85V9VirNJ1JNf4Wf76669tvf4WB9h9mZB/W8o/07kee6aP/Oeffz6XhERyALr0n3/+uaNk+hb/FhwSyKOPt3pMrqpKfpOqgpEfxNfP87BMXeJMkutrL/os5XtLchBbifJEJqTOopenErGuGgDivX//fqADYKB6M/T0LX1A/ZhRSbA/PhdqDN5T9eynbWcCLnozvda3RaTvM+F7RXIQUSX2bonEBtFe6ON03qIuWnjW0tNr4lAJOJRrwFdffZXpE9YSULtm1BsS/pAz0kjWHL0gOW/4gUTE5gIRxM7LpFuLhSdMgWNbeMIkKJMBZOQqhZLudBlqEGctDO4nBRL+ZN2l+9qSnHrrd7q5J7OknErsohvrSS0VC08SGHq6X3jeeps2Brx+3l2oNTL7u8BEefzDDz+cyJph7UjOm/it3sRdmb2JuUzUgbzoHJlM65lULzyDqe6mF57XATeYD/xANlVmnci+NiQvUUlAxGPVsZ+VkfLrr7+GVHse7W688Owy+Nth1tuxfetE9s6TvITcud6kF3V0XJ7/UiippcbCc11BC81QB/cT20e17GmXB3pnSV5GbilRSRLqo4TsJyo0DrtojekcyWkpgHqRud25JHJfO/hbfy+zJsih/s6H0iF0huRcKGGRtOd255LIvXRg3SJugQoVRqX6o65I9U6QXFUTLIqGcmktgf68n8i9OtAkO5TJAtXQCal+q0leoHfDyXL4008/PZOEGwH19Zddkuq3kuQlqglMgcMUQ307oAJoKBMBdOvNjbeO5HTmPHcOilyS3n0rwRie7929mlFfLGhtc3MzqJk3ZZq9VSTXBc6Rk95JNekAaIE5kktH0ikle1lIRAgfWGVw2K0geYGpKl8k7DRh9fDqSx2sUsW5cZKr9N6hWz1Mabq9n6R3N1F0L//xj3+c2usqyBBnv6ubD8tUnGXgRknu1ZN1cB8nzFpfcE91+3Gchhd7VOFNVYn+VJaEGyE5ba5QTzLugnryuA+WE0vc0MXYfWeGC6l165LEEJkZxx8+fHhUlG8aqTioQPBoGRxYOcljO6tcYzbMbUeBU6sIIbis69F/dYn+5Zdf7un3xcJ1aRJ9pSSPTE7IoNlfxyD9IijBIbGG/Bff/ZSlKkIpijgvk+rbSdfiRDxioquk/qxIUvtw52UQfWUkp/cSKspWma62rnDhvMIQ4L2im21ZO+IWZl2LE4lhRMe2kvezsuO8RJdrXoyuhOTffPPNE52uTsIbdvymtYFKql9sIVZ1ow1xTqY+P9bzTmXNEXlRr+07b9oGVAlZAjzBFed9IzjUFJPK+O51zsHvg3UKj3/UB4IDXJuF7wr1BYNdrgGB5JgmdbX/Rp9fyjUiJjhXzyPpCXCTqH4AjRMOSPZcegQ4Aeko2mLewMIIJEf1VP6fwcQl1wDMDAUE71VwFYoXmZqi3/9EEuYCHIG/hP9m0NVlQUx1cpXif8hkpf/IS48o3DVYBealQVGnfCNcZPZNRTE4XfxpX6xITcCF9qDot3H6OawyDxbhz1Qn1zc74+aBeyNsQ4XJuAuFJ3fpyCmEW033neC7JsWRUC0JRYDH+znU2vgF6uewvi2stkxJDpssNzOMMKY8DbkPkWOYQrAQgsqxXTaNYAC4m9tLghMmLDpfo2WJQHUEqMvPShaZ+3zOqFG0wpTkVFFy/gt75Yy7FVMKj3lhbxxfDLEowkhC6FV9JThuiLOodNaZs2wgCUYqpDX4Br8CtpFjIC2xGb0ppHWQ1HaT4pgSxlkIW4VMwenZpHuvkxxg3+ZmLwpqtgV4pVJ8ushU4fA9HtQiAlRIDGWSWzDw+5tgM3rTEVztbtcY4ZH+GNbQmwGmGt0/jT/oSyxKBTL8MSnU6ET9La/LwtUF0Ottsx0SL0K4LhbtIDWFRPgdfR2YJtiMd0AtcdVX8WO/xBvChk4LTMgA8TeQU40tNHs9PUeqSqMFJ61Sv+jjWv0Vtx0o4+cr/jJuZ2BkFzqIpKVufqdoJ7uVATkuzJs2cIdMMzoYWZfxvN5n89AVj9/irOmCk53j1gJWUFTVkS22gxmXNfTC/8ojqC1hcNNOnsllrRc/6CFkc2mAzaKdqK/N5xeIHEMcgf57CAuL/v+xqSP06JkefpwSHgIy/FEPcmOzod7QjM+/SkcBJyBmfZ2N/oAkZtDVAZ9fKvHfFKljkeHjABwj90bRofelIcokeSA5RqFK7JFu4nHlprFshJkLn0nPgRvsVJVcmsNuYC4dBGd1zwMreY1nEDvMVBUzHFTdTKiWYNWu25/BMeQaCLyShrhTsh8X2mbbkULyWqScfbhkRQgzX8bNxlYVZktlvE7nQpD5+QNX2qYy4nglNM7JZGLCzrl/qE9DcK4NzzZL9pvU3i5b6UOK45nhoyeSIBQKQGNpw7aKwLiLah+l87E+EPbxYIHvYIaLLI6MbStIC0mOxYFwitHRecWzSZPhLrZdME2Cy1mV5ggDRH/PxgPktkCJvaePhXJ1vW6u65pduQYUktyNSuC7WJqbFJeKhlJ9gzdttflNlNzBNNtmwbqGMGn+5Dp8BmXqSrBdCqW5I3XQvUyKt3F2rCvYGQ7IpSHoycPNHN90MBdmaQzYRWJFFgWFROAeKhvIgiglOeN6w4iCu96+NKV8jkfSxS+BzsjcfCsN4eqPLKXF4TxAcCHiFI4XOKNkYpd+yXDXm0LQJNw6pzU2q15kJauc/35vkWI60hBzXiuVqy9Atj2f8ybnUXjgcSPBXFjcwXatm0OfPM3HjVl5XJJJtmga3Oa8AxCgZelIiBNf9A3XEVThBtjW32gkzeBDckeyQoDgugZ4aSUj9HEIBwySrfm4MdWJv0WObWeqboW5JMf0ibhwiydIRL8KvQmmj4+blNmgLp7x35VKcdxD1MARxhwh+wb26Fvm7zBL00NZAHfqHIQvrqP+sY16Er3PCREzwKJTiYLN2gS3RgPYZkGdXFYIXdDtIPVs0eQWOoG22SB4wCJJWESbVQQzxAgPmEdRALTOe/H3wTnhXwiEtmX05kpyAyQUSn15iY4qppIAkloV13d1z9Hf78jUhJvQxZVsJ/p0jCJPbYhDC8xLW6gyl8Bqknuzn7nzMaiOcDzOq4oNZwrlmwvXRBjbdm5TTaJxcaG4lmEqtRzUjhNaSGrVdfQl47r2+5X0T7V647kKwrc648MyN+L+ASMRH8al8GTSGHg/HmT6ez53ZuoRr4WBMh08cBS9fv26lgm7McmBqPQu2nI/kB6D9WqyOoSNaiIicnNPOoCsuH8q1LMzWELqzgZWCs+ZTa+oS65yxIzQiFvt6OB5UGcNVFtd8cAHUh1yFyG4sL5IQgAkWNXrzIEdYhuOtK4QnGZGX7Uhl0npksaLVTh6yJ2QaunWeFc8m7EJE+ciLkYu3f5Hdd6zFckNMDGlxed80ItoequwNPOudAAoF4HqarZ+wGxFP0kuCwCORKzxeM1BFCM1wh99fRCfB2ufy0Wu5ZltRHKMNiw24QnDwiGZEqeYxt/7neZJ5OIs4+7DrhDcV0EzM2Pd9QN58gdnr0JQ1SiKkXrF9yz0dvq8T6nRp6g2yREQj5ulow621QOsdjHNLKtQaMcQXPkq8b5DPRo8LDtGLtWTkUym+KF0AM6OLm3MjJTCWz4kpAhRjJRZ604vP0ZpgFadYwJqkZyLJXyYEEQkk24IwZRoP0SfYTeKduIjpnplfDl4EheMsV45LOtLJibOSoJDasdEo4nS1iil0paxOiNs24LSBWhJWYAWa7KMqo4xzCV5bA2A2xc6GRcA4cbeZMTabQD1xAeMysz5wDQMyf0xF2crD7xqiyhf4HAewTG766w19PujcO15unPRb2MBWqVlKJAsjmf0X5IKVHo8aTYa8t8Zcw6+hH7BM5qCMM3k0mOQCLuyBrAsJUhKveeVOrgKu3PlCDYR+z0zmDHD6bWewAOq26OKy1hw27k/V68LAYvE6KxoFsTx5hGtuHa1JI++7DB+XfUu+1ALxRYk3C40iY13gVRXsshAeAR6YTYrmw0o4YOqgwHjz3X5CoXqjiWLQ5uo0ssrSW5f1qaFKydvbo64OZCEtYELU6hbGuOQ57WpcPUdn6/EpbBEHFCo7kTHtyO5fVkp1pn8yNuat8JNWF9AlYD9XBpGUrKERbCoFGWZkcSmmz+v4lhcztBjIWeQzJI/kXxN0EYNhf28SaYYTc9B32cUZuG5rHxrntG5NvEizFNXRvwQ94pe94uMqpGU0C3ofc+5uXBWThHoRbWWj7DB75cdS918n59rzxfs95+NFSYKMU9dGfHiyeHTI9ATmWMbTRWuSxWlx/yIXlTfiWQcHTdNpqY5c2Sv4VxrAIGeTLa/ylY+z7pio2OQdO5+wXVh22b9woG0hA9vuLisYR+KEPnFI0MB3vhkam7POBzhbGOk4jDaV6jOVJKcI9qKDCVp3iOAfD7tEWRDnHcTsrMtzxGJOhR6zBnkNVOEiP1OQeYinm1V7DuUywUvYqqudKSYG09usdJSEPvM1CeMqNqxvQndQpQ7EEDi416/9VVnEaCmuvY9qrczSQ4yEZbwmD8rUk84EIBcJgnV4brv37/f0sG2zeYPO9HHmzooo27OWARP9fy5JGebFIwOuK4/i0ZfJqwdjZLOXXJdJzRDnOzQADAvniGWpYwfFhqwMactexa1Y8c+Hzzmie4TWOYmMkMv19GJTatmNHXzIrUJblW8USL4esNqFCrR9uAJp7RGzMiWuKRlcIEpcCMmHtfhhTmfRlUHUX8f6mc4sdnFVCkQHFJdn3Eo6qEf6HEh36FSkkfBWeFL+MahaGIkk+TVMx01O5KQ0AKs/4ICR40a08b5xkL1xanYqNX5qJTkEcHP2RIDF0NLjMe0i5utM3UcTlgIjpiNW9Q7NSWQOlajN0tOmhKcLVUeuRLN287EYxin5ImEReBNlmgM1sSKw9YrH1u+MVWrYARBIsYVSV6VTe4WoYXghzxMUj2hKWipw6LWXP0LFT1yqvT+ZvSCJ/ihEdyM+Rfs1ekwJrHDqLlgW7qiXukJCWWw1EpxRg23oGwVryLOfDmV5F5K+2xyRooNZbbs13Fca4PmHQwKHH/F3JiQUIQi4wafL0naQqq72i2ThWe0Sg3Fgjh9gPQ77s0LjfkGnvOLXTx1oUioAusdWrmLUzU9HnqHord7A4hWREm9eWT3Anu68PStCqG8Wy06uST4KXM7h1XSmRFjY36ggSQkVAChImb+Q7m42GPuenla2/HdeeEF3D8tpBryb9l7cpfHHPLNQXCLMzisW2uDKssA2y64KyGhEnQmjopes9xZJXYu7NBMsu+qpEeO5wt2eh6Be/rAunEgrpDqpuuwdQ6rCEm6Rc/VoyYEZykx4DTFsSTMg8Wn1Kn4AG7C5c/ycjl3b1unZ2fWDqZsHGcDB+qKpfOHPE7o0ZgiEAZZl6hep6fKsy8JCXNAEp5im+ltg3nngOxw+ICjTLnLCw479l0yQPJx0ZvXtYwUlHI+w2yQ4s8T6sCcQBcNu5iAo9AyWJdxA6SXy5Dbh/5YkDxkZLfJ/oE9HPr7xWzNaZgQQ4k0LhAS2RNKUdSup02xqhCIdVm3ZeBfA8ltunhYl5BxGpN7aezji7lAeCkJCRWIEzRk0l6xsRNIz71iYwc2fWPQOtnQsEFGaUw4/xFNjB+zmMwG9SVgu6p1RkK/weyh51E0IYAsn1+axLCUlVD5CH8++eST/9MD/kM3/1233/3+++//8gdBcuv+//z000+xkgW5/00m5sX/Ub3ov3777beRYubCuIYe/zGuqcdt6P//KwkJDvSmgxdxFpFhS7WFvXv37g0+//zztzHHYuhx/81r/Us5Oa3jEpImoMDrqIG9/AlMMrp9n/bHgb58n30UvZsVnqf9eYtTq1U3ryBjQj+h/NizpBsl87Hp1JDIKP2MUthmF0eiBmzlZR5Pyxri+TOFimaiEHVkwSb+XcXngv5+XNdd7xoc5amDc4KHz+usyg+mqnsQqTKnSuQza3kYm7DjOJeNgoueXLimRUhJmpejVwRORRY2mZIqEmbQNM6phOxXUMS1UpKzdNdTaQGXziSLXCdhveE0hzG863Wcjwy+ghDOopdKQ1CuZAbpgff4XLei6QyalABL6DeYrwBio5TFyzpWOOfxhFHDnD8htLssBOUKyZWYRu7GThzYNr3tHIvX9+/fDyQhoRzmfkcO8fO6BYygOju7eKWH/grJXUXT2hYRZg5Beg+jlw6gtjS1dyb0A8wLHvp9tKTUkurWHW4j6vcZo0iS2wlZneRkcw7JrI5kns8xPzhW0m+Siz/B4LvLxbA0SgjHMrLTsJHx3zOpwEbJBWbqVpQcg9d9j/VQYhdx5H4BgYGCL8NVca3e8wnrjYJ6KZYEj2pb7+i5fOheB7dOrWiR7oeWMeRrp6irWPV+ZRW0oNBnMmljcaAXOeSHC1W0OE1k7nhkDj1lsyxUF31utTNAeP0fxvmDsjrnCf2CS2wADsvqI7Jn1TRRQvkDKe8PO68T1l1VXGgol/l1Ia2twEaZy0Q65+48mwWmUhvTDs897ko/+YTlAELQ4p58vcIqUGuAahOy1WTS9/OsKt/Yo7QWoq8rJ5OVr693dwrLSZEBH44jfT0TxvSylMUgvNmkqWtCT0EuTIXcvAWjATyzdprgXlO/y+aciw8ZjB7MPCAw/seblHmo2IkXyFgreshz99sWiknoPqLSEyZ9YUV5Xid+XPnzTz6/k4aYW7qZH9A8U7ViUJzK4oF6iscWbyAJvYFXUWSy3oNWUBQjlctkALy1HVzHZa5U82Of2lYHdUmeyWUBxc+qSMo61s/9yliiQjGIOKubIJ3QXbCuypGvBgHtwOqRy0T1hRoCQ0Yd83Ir61wtkgNu8VgozRlVhlXzjt+PQYFuAdDTLXQS++suOhK6CfLBt0eZEtRHIFrzBghHpGDCfBhb4WA6hP7etlhVbZJ7ac7oxKf65hiJWYFJMZfJyNyWaPT5oBxkEknC2iHyjRQKNCvj1kb9aIrazWo5ioK93PLw4LJn3YuMh+GYR5T05oWayZxmbAuwlVz96wd4IsELcgSqalntnhx/kBwhS0ajjsyUyCBwbPoJX4blAXLscObCzMgMHU1H+LTibVqArg8YvwT1xO47HDUPKlSMEAi4iqyxuT2DYvBDW0FQrJiDHR2LTdXbYT8/gxojE+JjMKCoOrygOD5zlzqUhLUAVFldYMJcPOAuFIYdVjlqLDXyYgWNkGvr5GWom7Hh0Ki+YsLtBa0n3sET4pfqZIHV7fh2HWgsyWPwC524jI2yzOtG+aEJtxsmvaMgq6d1F5F67ghdBZ0nfWlYmOQGI3u831lTttoS3EJ0U1H/mwfNf1BNMgZLTeOa9AHVtamlZOkkb7TwbANnTcnalP+yQu2u7NxAElYOa6kT5Q6gOOwDZMfLZA2GQlJHda6nUrywENAysHSSM7Y857+NS3/5Qu1NskYSrgcRuYfYx9jvYE1jcVj4Tcy8vDdPmEFQwVDBf2sFaS2CpZOcMEtKK2lusFp5yBqBuSpJ9eWhgNzWlGGfpQBzfzwNCWFfVRlmNsF64yJTl17JYWHrSl24ei6hJ1Hd8+IiNDrNIWygcR+ZhHqgaRhrKFhMvEpxPC9+2/cAMq849lslNsaw+JDtp8v2dob3lxWBZA1tWvTLPdMvV6tUBX90uICnwWHWo9GO4Q96YhlMCc3BwLon+jvid21Ebo+i1LYC5MwkG8kKsDKSA1Gz29C+vM4X1RtgOU/Bo6r/Y7DAVIlyYdsuDBPXOkzhvPVQkc7YmNzRdc0CY+Zky+Z5JZOczFxWiJWSHIjb1ilyFGiME6ANvhqXk+QzpI8dUpYUm9SYcpRI3Jw9XE9kjbBykgPe1hq9FEIBokL+kAbb3jMWk9yOLfK+QmcvS9XrM1wxVvzmSDQ/Xdff6EZIbqAeuCuz5QcK4Qs5lpHcUEL2oLfrbPAiSffwGwaVrw/FWG+U5B6MQR4wcH4aNM+cvtNIYv/CFXzlAtYGEa06HqH/oz7yvrZiNEFRVTZ5XXBrSN4EXq+vY0L0CR8xTH/XB+pdn3dFyptQaPOZizJzZI3RSZIDBQ0DChdNcYF23X5MWzssCkVhnpBqUG1esdPv+U2SgJ9/m50X7nONMhAX84GGw69fv35R95p+0KO/k6w5Ov0FEa6pT0eRPg9CotzYK5YUg8QPZI6nZqvSxETaTMqDhWxBfM4yZnges6PwuKWZDe+1hfxXSGSZ1LbBQLyHyDyaRsMxNS6Hz/KgrkR3icSNHHNdxVqMYt406N07FYfNzfSmCoABkbHe3rbUR4jGm3fQvAV2GUytsnqApqbUqVsZwywrSHBRd/yOrDnWaqoqkswkx35b97FfEMuknDWuOWhL1hJYuOqIVqB3rC41nqdze/26bgUEt3DvRZubtdfHlgkQDOqGhY0yRmMeQvF4pAjevXs3pAkuqvO7hfjctiRW6GcVGTm3BYnkawIX6lCYghaX2u6LFAcSydcEsZveOvfJZOE6kNkFbK/qxCeSrxEYsTmU8l6suUSltvuARPI1hNnWsViG/k9rTJ5yZBMS1hT/D0Z5Xfn3Ur91AAAAAElFTkSuQmCC" width={size} height={h}
+    <img
+      src={FIGMA_PIG_ICON_DARK}
+      width={size}
+      height={h}
       style={{ objectFit:'contain', display:'block', ...s }}
       alt="Penny the pig" />
   );
@@ -1114,8 +1118,9 @@ const NOTIFICATIONS = [
   { id:5, type:'info',    title:'Online Shopping', sub:'1 order left this month', cat:'onlineShopping', time:'1d ago', amount:'$54' },
 ];
 
-const FIGMA_CHALLENGE_PIG_2X = 'https://www.figma.com/api/mcp/asset/8b0c0473-1d14-4f36-827a-1f60a1dea1ea';
+const FIGMA_CHALLENGE_PIG_X3 = 'https://www.figma.com/api/mcp/asset/8b0c0473-1d14-4f36-827a-1f60a1dea1ea';
 const FIGMA_SPENDING_PIG_CARD = 'https://www.figma.com/api/mcp/asset/cbdb0b35-cfd0-498f-95fe-5a29783d0c44';
+const FIGMA_PIG_ICON_DARK = 'https://www.figma.com/api/mcp/asset/ce2b5ec1-d5f8-4d5c-83f6-6816ac44c259';
 
 // ── Home Screen ───────────────────────────────────────────────────
 function ScreenHome({ onTab, nav, navCat }) {
@@ -1632,17 +1637,20 @@ function ScreenSpending({ onTab, navCat }) {
 // ── Goals Screen ──────────────────────────────────────────────────
 function ScreenGoals({ onTab, nav, routineGoals, saveGoals, onReorderRoutine }) {
   const [tab, setTab] = React.useState('routine');
+  const [draggingId, setDraggingId] = React.useState(null);
   const [movedId, setMovedId] = React.useState(null);
+  const [dropTargetId, setDropTargetId] = React.useState(null);
+  const [suppressNav, setSuppressNav] = React.useState(false);
   const routineList = React.useMemo(
     () => (routineGoals || []).slice().sort((a,b)=>a.priority-b.priority),
     [routineGoals]
   );
   const syncPriority = (list) => list.map((g, i) => ({ ...g, priority:i+1 }));
-  const moveRoutine = (fromId, direction) => {
+  const moveRoutine = (fromId, targetId) => {
+    if (!fromId || !targetId || fromId === targetId) return;
     const fromIdx = routineList.findIndex(g => g.id === fromId);
-    const toIdx = direction === 'up' ? fromIdx - 1 : fromIdx + 1;
+    const toIdx = routineList.findIndex(g => g.id === targetId);
     if (fromIdx < 0 || toIdx < 0) return;
-    if (toIdx >= routineList.length) return;
     const next = routineList.slice();
     const [moved] = next.splice(fromIdx, 1);
     next.splice(toIdx, 0, moved);
@@ -1678,21 +1686,45 @@ function ScreenGoals({ onTab, nav, routineGoals, saveGoals, onReorderRoutine }) 
         <div style={{ padding:'0 24px' }}>
           <div style={{ marginBottom:10, backgroundColor:P.color.white, borderRadius:P.r.md, padding:'10px 12px', boxShadow:P.shadow.sm }}>
             <p style={{ margin:0, fontFamily:P.font.body, fontSize:11, color:P.color.ink3 }}>
-              Tap arrows to adjust priority order smoothly.
+              Drag the card to adjust priority order.
             </p>
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
             {routineList.map((g, idx) => (
-              <div key={g.id} onClick={() => nav('categoryDetail', {catId:g.cat})}
+              <div key={g.id}
+                onClick={() => { if (!suppressNav) nav('categoryDetail', {catId:g.cat}); }}
+                draggable
+                onDragStart={() => {
+                  setDraggingId(g.id);
+                  setDropTargetId(g.id);
+                  setSuppressNav(false);
+                }}
+                onDragEnter={() => setDropTargetId(g.id)}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  moveRoutine(draggingId, g.id);
+                  setSuppressNav(true);
+                  setTimeout(() => setSuppressNav(false), 180);
+                }}
+                onDragEnd={() => {
+                  setDraggingId(null);
+                  setDropTargetId(null);
+                }}
                 style={{ backgroundColor:P.color.white, borderRadius:P.r.lg,
                 padding:'14px 16px', display:'flex', alignItems:'center', gap:12,
                 boxShadow:P.shadow.sm, cursor:'pointer',
-                border: movedId === g.id ? `1.5px solid ${P.color.green}` : '1.5px solid transparent',
+                background: dropTargetId === g.id ? P.color.greenLight : P.color.white,
+                border: 'none',
                 animation: movedId === g.id ? 'prioritySwap .22s ease both' : 'none',
-                transition:'border-color .2s, box-shadow .2s, transform .2s' }}>
+                transition:'border-color .2s, box-shadow .2s, transform .2s',
+                opacity: draggingId === g.id ? .72 : 1 }}>
                 <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:18,
                   color:P.color.ink4, width:24, textAlign:'center', flexShrink:0 }}>
                   {g.priority}
+                </span>
+                <span style={{ fontFamily:P.font.ui, fontWeight:700, fontSize:12, color:P.color.ink4, letterSpacing:1, flexShrink:0 }}>
+                  |||
                 </span>
                 <CatIcon id={g.cat} size={46} bg={P.color.greenLight} color={P.color.green} />
                 <div style={{ flex:1 }}>
@@ -1707,22 +1739,6 @@ function ScreenGoals({ onTab, nav, routineGoals, saveGoals, onReorderRoutine }) 
                     {g.plan}
                   </span>
                 </div>
-                <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); moveRoutine(g.id, 'up'); }}
-                    disabled={idx===0}
-                    style={{ width:24, height:20, border:'none', borderRadius:8, cursor:idx===0?'not-allowed':'pointer',
-                      backgroundColor:idx===0?P.color.stone:P.color.greenLight, opacity:idx===0?.55:1 }}>
-                    <Icon name="arrowUp" size={13} color={idx===0?P.color.ink4:P.color.green}/>
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); moveRoutine(g.id, 'down'); }}
-                    disabled={idx===routineList.length-1}
-                    style={{ width:24, height:20, border:'none', borderRadius:8, cursor:idx===routineList.length-1?'not-allowed':'pointer',
-                      backgroundColor:idx===routineList.length-1?P.color.stone:P.color.greenLight, opacity:idx===routineList.length-1?.55:1 }}>
-                    <Icon name="arrowDown" size={13} color={idx===routineList.length-1?P.color.ink4:P.color.green}/>
-                  </button>
-                </div>
                 <button onClick={(e) => { e.stopPropagation(); nav('adjustment'); }}
                   style={{ background:'none', border:'none', cursor:'pointer', padding:4 }}>
                   <Icon name="chevRight" size={18} color={P.color.ink4} />
@@ -1732,7 +1748,7 @@ function ScreenGoals({ onTab, nav, routineGoals, saveGoals, onReorderRoutine }) 
           </div>
           <button onClick={() => nav('goalBuilder', {mode:'routine'})}
             style={{ width:'100%', height:50, borderRadius:P.r.lg, marginTop:12,
-            backgroundColor:'transparent', border:`2px dashed ${P.color.border}`,
+            backgroundColor:P.color.stone, border:'none',
             color:P.color.ink3, fontFamily:P.font.body, fontSize:13, fontWeight:700,
             cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
             <Icon name="plus" size={18} color={P.color.ink4} /> Add Routine
@@ -1773,7 +1789,7 @@ function ScreenGoals({ onTab, nav, routineGoals, saveGoals, onReorderRoutine }) 
           </div>
           <button onClick={() => nav('goalBuilder', {mode:'save'})}
             style={{ width:'100%', height:50, borderRadius:P.r.lg, marginTop:12,
-            backgroundColor:'transparent', border:`2px dashed ${P.color.border}`,
+            backgroundColor:P.color.stone, border:'none',
             color:P.color.ink3, fontFamily:P.font.body, fontSize:13, fontWeight:700,
             cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
             <Icon name="plus" size={18} color={P.color.ink4} /> Add Saving Goal
@@ -1841,8 +1857,9 @@ function ScreenAdjustment({ nav, routineGoals, pendingRoutine, onSaveAdjustment 
   };
 
   return (
-    <div style={{ flex:1, backgroundColor:P.color.cream, overflowY:'auto', paddingBottom:140, position:'relative' }}>
+    <div style={{ flex:1, backgroundColor:P.color.cream, overflow:'hidden', position:'relative', display:'flex', flexDirection:'column' }}>
       <StatusBar />
+      <div style={{ flex:1, overflowY:'auto', paddingBottom:152 }}>
       <div style={{ padding:'56px 24px 10px' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
           <button onClick={() => nav('__back__')} style={{ width:34, height:34, borderRadius:'50%', border:`1px solid ${P.color.border}`, background:P.color.white, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -1884,7 +1901,7 @@ function ScreenAdjustment({ nav, routineGoals, pendingRoutine, onSaveAdjustment 
       </div>
 
       {hasPendingRoutine && (
-        <div style={{ margin:'0 24px 10px', backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'12px 14px', boxShadow:P.shadow.sm, border:`1px solid ${P.color.border}` }}>
+        <div style={{ margin:'0 24px 10px', backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'12px 14px', boxShadow:P.shadow.sm }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10 }}>
             <div>
               <p style={{ margin:'0 0 2px', fontFamily:P.font.body, fontWeight:700, fontSize:13, color:P.color.black }}>
@@ -1941,18 +1958,22 @@ function ScreenAdjustment({ nav, routineGoals, pendingRoutine, onSaveAdjustment 
           );
         })}
       </div>
+      </div>
 
-      <div style={{ position:'fixed', left:'50%', transform:'translateX(-50%)', bottom:56, width:342, maxWidth:'calc(100% - 24px)', zIndex:20 }}>
-        {hasPendingRoutine && (
-          <p style={{ margin:'0 0 8px', textAlign:'center', fontFamily:P.font.body, fontSize:12, color:remainingCut===0?P.color.green:P.color.ink3, fontWeight:700 }}>
-            {remainingCut===0 ? `Balanced! You reallocated $${totalCut}.` : `Reduce $${remainingCut} more to continue.`}
-          </p>
-        )}
-        <PBtn
-          label={hasPendingRoutine ? 'Create Routine & Apply Rebalance' : 'Save Routine Adjustment'}
-          onClick={save}
-          style={{ opacity:canApply?1:.45, pointerEvents:canApply?'auto':'none' }}
-        />
+      <div style={{ position:'absolute', left:0, right:0, bottom:0, padding:'10px 24px calc(14px + env(safe-area-inset-bottom, 0px))',
+        backgroundColor:P.color.white, zIndex:30 }}>
+        <div style={{ backgroundColor:P.color.white, borderRadius:P.r.lg, boxShadow:P.shadow.md, padding:'10px 12px 8px' }}>
+          {hasPendingRoutine && (
+            <p style={{ margin:'0 0 10px', textAlign:'center', fontFamily:P.font.body, fontSize:12, color:remainingCut===0?P.color.green:P.color.ink3, fontWeight:700 }}>
+              {remainingCut===0 ? `Balanced! You reallocated $${totalCut}.` : `Reduce $${remainingCut} more to continue.`}
+            </p>
+          )}
+          <PBtn
+            label={hasPendingRoutine ? 'Create Routine & Apply Rebalance' : 'Save Routine Adjustment'}
+            onClick={save}
+            style={{ opacity:canApply?1:.45, pointerEvents:canApply?'auto':'none', marginTop:6 }}
+          />
+        </div>
       </div>
     </div>
   );
@@ -2022,6 +2043,11 @@ function ScreenProfile({ nav }) {
             Keep it up — you're on a roll
           </p>
         </div>
+        <img
+          src={FIGMA_PIG_ICON_DARK}
+          alt="Penny icon"
+          style={{ marginLeft:'auto', flexShrink:0, width:60, height:48, objectFit:'contain', display:'block', opacity:.96 }}
+        />
       </div>
 
       {/* Settings */}
@@ -3424,7 +3450,7 @@ function SpiralBoard({ streak, currentDay, W=320, H=380 }) {
       {curPt && (
         <foreignObject x={curPt.x-26} y={curPt.y-62} width="52" height="52">
           <img xmlns="http://www.w3.org/1999/xhtml"
-            src="data:image/png;base64,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" width="52" height="38"
+            src={FIGMA_PIG_ICON_DARK} width="52" height="38"
             style={{objectFit:'contain',display:'block'}}/>
         </foreignObject>
       )}
@@ -3494,12 +3520,13 @@ function ScreenChallengeDetailV2({ nav }) {
         {/* Direct pig stage visual only */}
         <div style={{ margin:'14px 20px 0', display:'flex', justifyContent:'center' }}>
           <img
-            src={FIGMA_CHALLENGE_PIG_2X}
+            src={FIGMA_CHALLENGE_PIG_X3}
             alt="Challenge pig achievement stage"
             style={{
               width:'239px',
               height:'332px',
               objectFit:'cover',
+              imageRendering:'-webkit-optimize-contrast',
               borderRadius:20,
               display:'block'
             }}
@@ -4223,7 +4250,7 @@ function ScreenGoalBuilderSuccess({ nav, mode='routine', createdGoal }) {
           <Icon name="chevLeft" size={18} color={P.color.black}/>
         </button>
 
-        <div style={{ marginTop:18, backgroundColor:P.color.white, borderRadius:P.r.xl, border:`1px solid ${P.color.border}`, overflow:'hidden', boxShadow:P.shadow.md }}>
+        <div style={{ marginTop:18, backgroundColor:P.color.white, borderRadius:P.r.xl, overflow:'hidden', boxShadow:P.shadow.md }}>
           <div style={{ height:228, position:'relative', background:`linear-gradient(135deg,${theme.c1} 0%,${theme.c2} 100%)` }}>
             <img src={theme.img} alt={`${title} theme`}
               style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', opacity:.3, display:'block' }}/>
@@ -4749,7 +4776,7 @@ function ScreenProfileV2({ nav, saveGoals }) {
 
         {/* Achievement Categories */}
         <div style={{ display:'flex', alignItems:'center',
-          justifyContent:'space-between', margin:'22px 0 12px' }}>
+          justifyContent:'space-between', margin:'18px 0 10px' }}>
           <h2 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:22,
             color:P.color.black, margin:0, letterSpacing:'-.3px' }}>
             Achievement Categories
@@ -4763,7 +4790,7 @@ function ScreenProfileV2({ nav, saveGoals }) {
 
         {/* Streak card */}
         <div style={{ backgroundColor:P.color.green, borderRadius:P.r.xl,
-          padding:'16px 20px', marginBottom:14, display:'flex',
+          padding:'16px 20px', marginBottom:12, display:'flex',
           alignItems:'center', gap:14, boxShadow:P.shadow.md }}>
           <div style={{ width:44, height:44, borderRadius:P.r.md,
             backgroundColor:'rgba(255,255,255,.15)', display:'flex',
@@ -4776,11 +4803,15 @@ function ScreenProfileV2({ nav, saveGoals }) {
             <p style={{ fontFamily:P.font.body, fontSize:12,
               color:'rgba(255,255,255,.65)', margin:0 }}>Keep it up — you're on a roll</p>
           </div>
-          <PigMascot size={52} style={{ marginLeft:'auto', flexShrink:0 }}/>
+          <img
+            src={FIGMA_PIG_ICON_DARK}
+            alt="Penny icon"
+            style={{ marginLeft:'auto', flexShrink:0, width:58, height:46, objectFit:'contain', display:'block', opacity:.96 }}
+          />
         </div>
 
-        <div style={{ display:'flex', gap:4, overflowX:'auto', paddingBottom:8,
-          marginBottom:4, marginLeft:-4 }}>
+        <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:8,
+          marginBottom:12 }}>
           {achievements.map((a,i)=>(
             <div key={i} onClick={()=>nav('achievements')} style={{ cursor:'pointer', flexShrink:0 }}>
               <Badge category={a.category} points={a.points}
@@ -4812,8 +4843,13 @@ function ScreenProfileV2({ nav, saveGoals }) {
           ))}
         </div>
 
-        <div style={{ padding:'16px 0 4px' }}>
-          <PBtn label="Sign Out" variant="danger" onClick={()=>nav('welcome')}/>
+        <div style={{ padding:'14px 0 4px' }}>
+          <button onClick={()=>nav('welcome')}
+            style={{ width:'100%', height:54, border:'none', borderRadius:28, backgroundColor:P.color.green,
+              color:P.color.white, fontFamily:P.font.display, fontWeight:700, fontSize:24, letterSpacing:'.2px',
+              cursor:'pointer' }}>
+            Sign Out
+          </button>
         </div>
         <BottomLineNote pad="8px 0 4px" />
       </div>
