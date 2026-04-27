@@ -282,7 +282,8 @@ const CAT_META = {
 };
 
 // ─── STATUS BAR (Figma node 30:6354) ─────────────────────────────
-const FIGMA_STATUSBAR_ICONS = 'https://www.figma.com/api/mcp/asset/6fe44907-0268-44c8-a134-efbb0dff2591';
+// Bundled PNGs (Figma MCP asset URLs expire; keep local copies for file:// + localhost).
+const FIGMA_STATUSBAR_ICONS = 'assets/ios-statusbar.png';
 function StatusBar({ light=false, mode='dark' }) {
   const resolvedMode = light ? 'light' : mode;
   const isLightMode = resolvedMode === 'light'; // white content on dark backgrounds
@@ -1118,9 +1119,9 @@ const NOTIFICATIONS = [
   { id:5, type:'info',    title:'Online Shopping', sub:'1 order left this month', cat:'onlineShopping', time:'1d ago', amount:'$54' },
 ];
 
-const FIGMA_CHALLENGE_PIG_X3 = 'https://www.figma.com/api/mcp/asset/8b0c0473-1d14-4f36-827a-1f60a1dea1ea';
-const FIGMA_SPENDING_PIG_CARD = 'https://www.figma.com/api/mcp/asset/cbdb0b35-cfd0-498f-95fe-5a29783d0c44';
-const FIGMA_PIG_ICON_DARK = 'https://www.figma.com/api/mcp/asset/ce2b5ec1-d5f8-4d5c-83f6-6816ac44c259';
+const FIGMA_CHALLENGE_PIG_X3 = 'assets/challenge-pig-stage.png';
+const FIGMA_SPENDING_PIG_CARD = 'assets/spending-pig-card.png';
+const FIGMA_PIG_ICON_DARK = 'assets/penny-pig-icon-dark.png';
 
 // ── Home Screen ───────────────────────────────────────────────────
 function ScreenHome({ onTab, nav, navCat }) {
