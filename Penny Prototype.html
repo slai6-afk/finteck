@@ -46,6 +46,10 @@
   .screen-out { animation:sOut .3s cubic-bezier(.4,0,.2,1) both; }
   @keyframes sIn  { from{transform:translateX(32px);opacity:0} to{transform:none;opacity:1} }
   @keyframes sOut { from{transform:none;opacity:1} to{transform:translateX(-20px);opacity:0} }
+  @keyframes prioritySwap {
+    0%   { transform:translateY(6px) scale(.985); }
+    100% { transform:translateY(0) scale(1); }
+  }
 
   #tweak-panel {
     position:fixed; bottom:20px; right:20px; background:#FFFFFF;
@@ -262,6 +266,9 @@ const CAT_META = {
   streaming:     { icon:'subscriptions', label:'Streaming'    },
   household:     { icon:'home',          label:'Household'    },
   fitness:       { icon:'fitness',       label:'Fitness'      },
+  drink:         { icon:'coffee',        label:'Drink'        },
+  hangout:       { icon:'social',        label:'Hangout'      },
+  dress:         { icon:'clothing',      label:'Dress'        },
   travel:        { icon:'travel',        label:'Travel'       },
   entertainment: { icon:'entertainment', label:'Entertainment'},
   home:          { icon:'home',          label:'Home & Living'},
@@ -598,7 +605,7 @@ function ScreenLogin({ nav }) {
             onChange={e=>setEmail(e.target.value)} iconName="mail" />
           <PInput placeholder="Password" type="password" value={pass}
             onChange={e=>setPass(e.target.value)} iconName="lock" />
-          <button style={{ background:'none', border:'none', cursor:'pointer',
+          <button onClick={() => nav('verifyEmail')} style={{ background:'none', border:'none', cursor:'pointer',
             textAlign:'right', fontFamily:P.font.body, fontSize:13,
             color:P.color.ink3, padding:0 }}>Forgot password?</button>
         </div>
@@ -693,7 +700,7 @@ function ScreenVerifyEmail({ nav }) {
         <p style={{ textAlign:'center', fontFamily:P.font.body, fontSize:13,
           color:P.color.ink3, marginTop:16 }}>
           Didn't receive it?{' '}
-          <button style={{ background:'none', border:'none', cursor:'pointer',
+          <button onClick={() => nav('verifyEmail')} style={{ background:'none', border:'none', cursor:'pointer',
             color:P.color.green, fontWeight:700, fontFamily:P.font.body, fontSize:13 }}>
             Resend
           </button>
@@ -1049,6 +1056,9 @@ const TODAY_TASKS = [
   { id:4, name:'Train Commute',     avg:'$5',  timesLeft:4, total:10,type:'aligned',   cat:'train' },
   { id:5, name:'Uber / Rideshare',  avg:'$22', timesLeft:1, total:3, type:'impulsive', cat:'rideshare' },
   { id:6, name:'Online Shopping',   avg:'$54', timesLeft:1, total:2, type:'impulsive', cat:'onlineShopping' },
+  { id:7, name:'Drink',             avg:'$12', timesLeft:2, total:4, type:'neutral',   cat:'drink' },
+  { id:8, name:'Hangout',           avg:'$29', timesLeft:1, total:2, type:'neutral',   cat:'hangout' },
+  { id:9, name:'Dress',             avg:'$88', timesLeft:1, total:1, type:'impulsive', cat:'dress' },
 ];
 
 const CHALLENGES = [
@@ -1073,6 +1083,9 @@ const MONTHLY_CATS = [
   { id:'wellness',        name:'Wellness',          amount:52,   budget:70,   type:'aligned'   },
   { id:'streaming',       name:'Streaming',         amount:38,   budget:45,   type:'neutral'   },
   { id:'household',       name:'Household',         amount:76,   budget:100,  type:'aligned'   },
+  { id:'drink',           name:'Drink',             amount:64,   budget:90,   type:'neutral'   },
+  { id:'hangout',         name:'Hangout',           amount:110,  budget:130,  type:'neutral'   },
+  { id:'dress',           name:'Dress',             amount:140,  budget:120,  type:'impulsive' },
 ];
 
 const CATEGORY_BUDGETS = Object.fromEntries(MONTHLY_CATS.map(c => [c.id, c.budget]));
@@ -1164,11 +1177,11 @@ function ScreenHome({ onTab, nav, navCat }) {
             </div>
           </div>
           <div style={{ display:'flex', gap:8 }}>
-            <button style={{ flex:1, height:38, borderRadius:P.r.pill,
+            <button onClick={(e)=>{ e.stopPropagation(); nav('challengesList'); }} style={{ flex:1, height:38, borderRadius:P.r.pill,
               backgroundColor:'rgba(255,255,255,.18)', border:'1.5px solid rgba(255,255,255,.35)',
               color:P.color.white, fontFamily:P.font.body, fontSize:13, fontWeight:700,
               cursor:'pointer' }}>Skip</button>
-            <button style={{ flex:2, height:38, borderRadius:P.r.pill,
+            <button onClick={(e)=>{ e.stopPropagation(); nav('challengeDetail'); }} style={{ flex:2, height:38, borderRadius:P.r.pill,
               backgroundColor:P.color.white, border:'none',
               color:challenge.color, fontFamily:P.font.body, fontSize:13, fontWeight:700,
               cursor:'pointer' }}>Accept Challenge ✓</button>
@@ -1460,7 +1473,7 @@ function ScreenSpending({ onTab, navCat }) {
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
           <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:24,
             color:P.color.black, margin:0, letterSpacing:'-.4px' }}>April 2026</h1>
-          <button style={{ display:'flex', alignItems:'center', gap:6, background:'none',
+          <button onClick={() => navCat && navCat(donutData[0]?.id || 'dineOut')} style={{ display:'flex', alignItems:'center', gap:6, background:'none',
             border:`1px solid ${P.color.border}`, borderRadius:P.r.pill,
             padding:'6px 14px', cursor:'pointer' }}>
             <Icon name="filter" size={14} color={P.color.ink2} />
@@ -1617,8 +1630,26 @@ function ScreenSpending({ onTab, navCat }) {
 }
 
 // ── Goals Screen ──────────────────────────────────────────────────
-function ScreenGoals({ onTab, nav, routineGoals, saveGoals }) {
+function ScreenGoals({ onTab, nav, routineGoals, saveGoals, onReorderRoutine }) {
   const [tab, setTab] = React.useState('routine');
+  const [movedId, setMovedId] = React.useState(null);
+  const routineList = React.useMemo(
+    () => (routineGoals || []).slice().sort((a,b)=>a.priority-b.priority),
+    [routineGoals]
+  );
+  const syncPriority = (list) => list.map((g, i) => ({ ...g, priority:i+1 }));
+  const moveRoutine = (fromId, direction) => {
+    const fromIdx = routineList.findIndex(g => g.id === fromId);
+    const toIdx = direction === 'up' ? fromIdx - 1 : fromIdx + 1;
+    if (fromIdx < 0 || toIdx < 0) return;
+    if (toIdx >= routineList.length) return;
+    const next = routineList.slice();
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    onReorderRoutine && onReorderRoutine(syncPriority(next));
+    setMovedId(fromId);
+    setTimeout(() => setMovedId(null), 260);
+  };
   return (
     <div style={{ flex:1, backgroundColor:P.color.cream, overflowY:'auto', paddingBottom:118 }}>
       <StatusBar />
@@ -1645,12 +1676,20 @@ function ScreenGoals({ onTab, nav, routineGoals, saveGoals }) {
 
       {tab === 'routine' ? (
         <div style={{ padding:'0 24px' }}>
+          <div style={{ marginBottom:10, backgroundColor:P.color.white, borderRadius:P.r.md, padding:'10px 12px', boxShadow:P.shadow.sm }}>
+            <p style={{ margin:0, fontFamily:P.font.body, fontSize:11, color:P.color.ink3 }}>
+              Tap arrows to adjust priority order smoothly.
+            </p>
+          </div>
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-            {routineGoals.map(g => (
+            {routineList.map((g, idx) => (
               <div key={g.id} onClick={() => nav('categoryDetail', {catId:g.cat})}
                 style={{ backgroundColor:P.color.white, borderRadius:P.r.lg,
                 padding:'14px 16px', display:'flex', alignItems:'center', gap:12,
-                boxShadow:P.shadow.sm, cursor:'pointer' }}>
+                boxShadow:P.shadow.sm, cursor:'pointer',
+                border: movedId === g.id ? `1.5px solid ${P.color.green}` : '1.5px solid transparent',
+                animation: movedId === g.id ? 'prioritySwap .22s ease both' : 'none',
+                transition:'border-color .2s, box-shadow .2s, transform .2s' }}>
                 <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:18,
                   color:P.color.ink4, width:24, textAlign:'center', flexShrink:0 }}>
                   {g.priority}
@@ -1667,6 +1706,22 @@ function ScreenGoals({ onTab, nav, routineGoals, saveGoals }) {
                     borderRadius:P.r.pill, padding:'2px 8px', display:'inline-block', marginTop:3 }}>
                     {g.plan}
                   </span>
+                </div>
+                <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); moveRoutine(g.id, 'up'); }}
+                    disabled={idx===0}
+                    style={{ width:24, height:20, border:'none', borderRadius:8, cursor:idx===0?'not-allowed':'pointer',
+                      backgroundColor:idx===0?P.color.stone:P.color.greenLight, opacity:idx===0?.55:1 }}>
+                    <Icon name="arrowUp" size={13} color={idx===0?P.color.ink4:P.color.green}/>
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); moveRoutine(g.id, 'down'); }}
+                    disabled={idx===routineList.length-1}
+                    style={{ width:24, height:20, border:'none', borderRadius:8, cursor:idx===routineList.length-1?'not-allowed':'pointer',
+                      backgroundColor:idx===routineList.length-1?P.color.stone:P.color.greenLight, opacity:idx===routineList.length-1?.55:1 }}>
+                    <Icon name="arrowDown" size={13} color={idx===routineList.length-1?P.color.ink4:P.color.green}/>
+                  </button>
                 </div>
                 <button onClick={(e) => { e.stopPropagation(); nav('adjustment'); }}
                   style={{ background:'none', border:'none', cursor:'pointer', padding:4 }}>
@@ -1733,36 +1788,60 @@ function ScreenGoals({ onTab, nav, routineGoals, saveGoals }) {
 }
 
 // ── Adjustment Page ───────────────────────────────────────────────
-function ScreenAdjustment({ nav, routineGoals, onSaveAdjustment }) {
-  const [editing, setEditing] = React.useState(null);
-  const [items, setItems] = React.useState(
-    (routineGoals || []).map((g, i) => ({
-      id:g.id, cat:g.cat, name:g.name, max:g.amount, priority:i+1
-    }))
+function ScreenAdjustment({ nav, routineGoals, pendingRoutine, onSaveAdjustment }) {
+  const sortedRoutine = React.useMemo(
+    () => (routineGoals || []).slice().sort((a,b)=>a.priority-b.priority),
+    [routineGoals]
   );
-  const [heroCat, setHeroCat] = React.useState(items[0]?.cat || 'dineOut');
+  const hasPendingRoutine = !!pendingRoutine;
+  const [items, setItems] = React.useState([]);
+  const [heroCat, setHeroCat] = React.useState(pendingRoutine?.cat || sortedRoutine[0]?.cat || 'dineOut');
 
   React.useEffect(() => {
-    setItems((routineGoals || []).map((g, i) => ({
-      id:g.id, cat:g.cat, name:g.name, max:g.amount, priority:i+1
+    setItems(sortedRoutine.map((g, i) => ({
+      id:g.id,
+      cat:g.cat,
+      name:g.name,
+      original:Math.max(0, parseInt(g.amount, 10) || 0),
+      max:Math.max(0, parseInt(g.amount, 10) || 0),
+      priority:i+1,
     })));
-  }, [routineGoals]);
+  }, [sortedRoutine]);
 
-  const updateMax = (id, val) => {
-    setItems(prev => prev.map(i => i.id===id ? {...i, max: Math.max(0, parseInt(val) || 0)} : i));
+  React.useEffect(() => {
+    setHeroCat(pendingRoutine?.cat || sortedRoutine[0]?.cat || 'dineOut');
+  }, [pendingRoutine, sortedRoutine]);
+
+  const updateMax = (id, raw) => {
+    const nextVal = Math.max(0, parseInt(raw, 10) || 0);
+    setItems(prev => prev.map(i => i.id===id ? {...i, max: Math.min(i.original, nextVal)} : i));
   };
 
+  const requiredCut = hasPendingRoutine ? Math.max(0, parseInt(pendingRoutine.amount, 10) || 0) : 0;
+  const totalCut = items.reduce((sum, item) => sum + Math.max(0, item.original - item.max), 0);
+  const remainingCut = Math.max(0, requiredCut - totalCut);
+  const canApply = !hasPendingRoutine || totalCut >= requiredCut;
+
   const save = () => {
-    const patched = (routineGoals || []).map(g => {
-      const hit = items.find(i => i.id === g.id);
-      return hit ? {...g, amount: hit.max} : g;
+    if (hasPendingRoutine && totalCut < requiredCut) return;
+    const patchedExisting = sortedRoutine.map((g, i) => {
+      const hit = items.find(it => it.id === g.id);
+      const amount = hit ? Math.max(0, Math.round(hit.max)) : Math.max(0, parseInt(g.amount, 10) || 0);
+      return { ...g, amount, priority:i+1 };
     });
-    onSaveAdjustment && onSaveAdjustment(patched);
-    nav('goalBuilderSuccess', { mode:'routine' });
+    if (hasPendingRoutine) {
+      const created = { ...pendingRoutine, priority: patchedExisting.length + 1 };
+      const next = [...patchedExisting, created].map((g, i) => ({ ...g, priority:i+1 }));
+      onSaveAdjustment && onSaveAdjustment({ type:'finalizeRoutineCreate', routineGoals:next, createdGoal:created });
+      nav('goalBuilderSuccess', { mode:'routine' });
+      return;
+    }
+    onSaveAdjustment && onSaveAdjustment({ type:'updateRoutineBudgets', routineGoals:patchedExisting });
+    nav('__back__');
   };
 
   return (
-    <div style={{ flex:1, backgroundColor:P.color.cream, overflowY:'auto', paddingBottom:98, position:'relative' }}>
+    <div style={{ flex:1, backgroundColor:P.color.cream, overflowY:'auto', paddingBottom:140, position:'relative' }}>
       <StatusBar />
       <div style={{ padding:'56px 24px 10px' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
@@ -1782,10 +1861,10 @@ function ScreenAdjustment({ nav, routineGoals, onSaveAdjustment }) {
               <CatIcon id={heroCat} size={52} bg="rgba(255,255,255,.78)" color={P.color.green}/>
               <div>
                 <p style={{ margin:0, fontFamily:P.font.display, fontWeight:700, fontSize:30, color:P.color.black }}>
-                  {CAT_META[heroCat]?.label || 'Routine'}
+                  {hasPendingRoutine ? (pendingRoutine.name || 'New Routine') : (CAT_META[heroCat]?.label || 'Routine')}
                 </p>
                 <p style={{ margin:'2px 0 0', fontFamily:P.font.body, fontSize:12, color:P.color.ink2 }}>
-                  Let&apos;s adjust priorities to build your best routine.
+                  Let&apos;s adjust your priorities to create a new routine.
                 </p>
               </div>
             </div>
@@ -1804,9 +1883,27 @@ function ScreenAdjustment({ nav, routineGoals, onSaveAdjustment }) {
         </div>
       </div>
 
+      {hasPendingRoutine && (
+        <div style={{ margin:'0 24px 10px', backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'12px 14px', boxShadow:P.shadow.sm, border:`1px solid ${P.color.border}` }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10 }}>
+            <div>
+              <p style={{ margin:'0 0 2px', fontFamily:P.font.body, fontWeight:700, fontSize:13, color:P.color.black }}>
+                Add: {pendingRoutine.name}
+              </p>
+              <p style={{ margin:0, fontFamily:P.font.body, fontSize:11, color:P.color.ink3 }}>
+                Reduce other routines by ${requiredCut} to keep your plan balanced.
+              </p>
+            </div>
+            <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:24, color:P.color.green }}>
+              ${requiredCut}
+            </span>
+          </div>
+        </div>
+      )}
+
       <div style={{ padding:'0 24px' }}>
         {items.map(item => {
-          const fill = Math.min(100, (item.max / 300) * 100);
+          const cut = Math.max(0, item.original - item.max);
           return (
             <div key={item.id} style={{ marginBottom:12, backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'12px 12px 10px', boxShadow:P.shadow.sm }}>
               <div style={{ display:'flex', alignItems:'center', gap:10 }}>
@@ -1814,23 +1911,30 @@ function ScreenAdjustment({ nav, routineGoals, onSaveAdjustment }) {
                 <CatIcon id={item.cat} size={36} bg={P.color.pinkLight} color={P.color.green} />
                 <div style={{ flex:1 }}>
                   <p style={{ margin:'0 0 4px', fontFamily:P.font.body, fontWeight:700, fontSize:13, color:P.color.black }}>{item.name}</p>
-                  <div style={{ height:12, borderRadius:10, backgroundColor:P.color.stone, position:'relative' }}>
-                    <div style={{ width:`${fill}%`, height:'100%', borderRadius:10, backgroundColor:P.color.green }}/>
+                  <input
+                    type="range"
+                    min="0"
+                    max={item.original}
+                    step="1"
+                    value={item.max}
+                    onChange={(e)=>updateMax(item.id, e.target.value)}
+                    style={{ width:'100%', marginTop:6, accentColor:P.color.green }}
+                  />
+                  <div style={{ display:'flex', justifyContent:'space-between', marginTop:4 }}>
+                    <span style={{ fontFamily:P.font.body, fontSize:10, color:P.color.ink3 }}>$0</span>
+                    <span style={{ fontFamily:P.font.body, fontSize:10, color:P.color.ink3 }}>Max ${item.original}</span>
                   </div>
                 </div>
                 <div style={{ textAlign:'right', minWidth:72 }}>
                   <p style={{ margin:'0 0 2px', fontFamily:P.font.body, fontSize:10, color:P.color.ink3 }}>Max / week</p>
-                  {editing===item.id ? (
-                    <input type="number" value={item.max}
-                      onChange={e=>updateMax(item.id, e.target.value)}
-                      onBlur={()=>setEditing(null)}
-                      autoFocus
-                      style={{ width:68, border:`1px solid ${P.color.green}`, borderRadius:8, padding:'3px 6px', textAlign:'right', fontFamily:P.font.body, fontWeight:700, fontSize:14, outline:'none' }}/>
-                  ) : (
-                    <button onClick={()=>setEditing(item.id)} style={{ border:'none', background:'none', cursor:'pointer', fontFamily:P.font.display, fontWeight:700, fontSize:18, color:P.color.black, padding:0 }}>
-                      ${item.max}
-                    </button>
-                  )}
+                  <p style={{ margin:'0 0 2px', fontFamily:P.font.display, fontWeight:700, fontSize:18, color:P.color.black }}>
+                    ${Math.round(item.max)}
+                  </p>
+                  {hasPendingRoutine ? (
+                    <p style={{ margin:'4px 0 0', fontFamily:P.font.body, fontSize:10, color:cut>0?P.color.green:P.color.ink3, fontWeight:700 }}>
+                      -${cut}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -1839,7 +1943,16 @@ function ScreenAdjustment({ nav, routineGoals, onSaveAdjustment }) {
       </div>
 
       <div style={{ position:'fixed', left:'50%', transform:'translateX(-50%)', bottom:56, width:342, maxWidth:'calc(100% - 24px)', zIndex:20 }}>
-        <PBtn label="Save Routine Adjustment" onClick={save}/>
+        {hasPendingRoutine && (
+          <p style={{ margin:'0 0 8px', textAlign:'center', fontFamily:P.font.body, fontSize:12, color:remainingCut===0?P.color.green:P.color.ink3, fontWeight:700 }}>
+            {remainingCut===0 ? `Balanced! You reallocated $${totalCut}.` : `Reduce $${remainingCut} more to continue.`}
+          </p>
+        )}
+        <PBtn
+          label={hasPendingRoutine ? 'Create Routine & Apply Rebalance' : 'Save Routine Adjustment'}
+          onClick={save}
+          style={{ opacity:canApply?1:.45, pointerEvents:canApply?'auto':'none' }}
+        />
       </div>
     </div>
   );
@@ -2575,7 +2688,7 @@ function ScreenChallengesList({ nav }) {
     <div style={{ flex:1, backgroundColor:P.color.cream, display:'flex',
       flexDirection:'column', position:'relative' }}>
       <StatusBar />
-      <NavBar title="Challenges" onBack={()=>nav('__back__')} rightLabel="History" onRight={()=>{}} />
+      <NavBar title="Challenges" onBack={()=>nav('__back__')} rightLabel="History" onRight={()=>nav('notification')} />
 
       <div style={{ flex:1, overflowY:'auto', paddingTop:94, paddingBottom:40 }}>
         {/* Active challenge banner */}
@@ -2737,6 +2850,19 @@ const TRANSACTIONS = {
     {id:1,name:"Target Home",         date:"Sat, Apr 13",amount:41.00,type:'aligned'},
     {id:2,name:"IKEA",                date:"Sun, Apr 14",amount:35.00,type:'neutral'},
   ],
+  drink:[
+    {id:1,name:"Blank Street Matcha", date:"Fri, Apr 12",amount:7.75,type:'neutral'},
+    {id:2,name:"Cocktail Bar",        date:"Sat, Apr 13",amount:24.00,type:'impulsive'},
+    {id:3,name:"Juice Press",         date:"Mon, Apr 15",amount:11.00,type:'aligned'},
+  ],
+  hangout:[
+    {id:1,name:"Bowling Night",       date:"Thu, Apr 11",amount:38.00,type:'neutral'},
+    {id:2,name:"Karaoke",             date:"Sat, Apr 13",amount:54.00,type:'impulsive'},
+  ],
+  dress:[
+    {id:1,name:"Aritzia Dress",       date:"Sun, Apr 14",amount:118.00,type:'impulsive'},
+    {id:2,name:"Vintage Alteration",  date:"Tue, Apr 16",amount:22.00,type:'neutral'},
+  ],
 };
 const DEFAULT_TXN = [
   {id:1,name:"Transaction 1",date:"Fri, Apr 11",amount:45.00,type:'aligned'  },
@@ -2791,7 +2917,7 @@ function ScreenCategoryDetail({ nav, catId='dineOut' }) {
     <div style={{ flex:1, backgroundColor:P.color.cream, display:'flex',
       flexDirection:'column', position:'relative', overflow:'hidden' }}>
       <StatusBar />
-      <NavBar title={meta.label} onBack={()=>nav('__back__')} rightLabel="Edit" onRight={()=>{}} />
+      <NavBar title={meta.label} onBack={()=>nav('__back__')} rightLabel="Edit" onRight={()=>setSheet('split')} />
 
       <div style={{ flex:1, overflowY:'auto', paddingTop:94, paddingBottom:40 }}>
         {/* Hero */}
@@ -3308,6 +3434,7 @@ function SpiralBoard({ streak, currentDay, W=320, H=380 }) {
 
 function ScreenChallengeDetailV2({ nav }) {
   const [accepted, setAccepted] = React.useState(false);
+  const [skipped, setSkipped] = React.useState(false);
   const [showReward, setShowReward] = React.useState(false);
   const done = 3;
   const totalPts = 55;
@@ -3399,8 +3526,8 @@ function ScreenChallengeDetailV2({ nav }) {
           </div>
           {!accepted ? (
             <div style={{ display:'flex', gap:10 }}>
-              <PBtn label="Skip" variant="secondary" style={{height:42,fontSize:14}} onClick={()=>{}}/>
-              <PBtn label="Complete ✓" style={{height:42,fontSize:14}} onClick={()=>setAccepted(true)}/>
+              <PBtn label="Skip" variant="secondary" style={{height:42,fontSize:14}} onClick={()=>{ setSkipped(true); setAccepted(false); }}/>
+              <PBtn label="Complete ✓" style={{height:42,fontSize:14}} onClick={()=>{ setAccepted(true); setSkipped(false); }}/>
             </div>
           ) : (
             <div style={{ backgroundColor:P.color.greenLight, borderRadius:P.r.md,
@@ -3408,6 +3535,11 @@ function ScreenChallengeDetailV2({ nav }) {
               <p style={{ fontFamily:P.font.body, fontWeight:700, fontSize:13,
                 color:P.color.green, margin:0 }}>See you tomorrow! 🐷</p>
             </div>
+          )}
+          {!accepted && skipped && (
+            <p style={{ margin:'8px 2px 0', fontFamily:P.font.body, fontSize:11, color:P.color.ink3 }}>
+              Skipped today. Penny will nudge you again tomorrow.
+            </p>
           )}
         </div>
 
@@ -3884,18 +4016,67 @@ function AddGoalSheet({ open, onClose, type='save', onSaved }) {
 }
 
 // ─── GOAL BUILDER PAGE (Hi-fi from low-fi flow) ──────────────────
+const NYC_ROUTINE_RECO = {
+  train:{ avg:12, freq:10 },
+  dineOut:{ avg:42, freq:3 },
+  rideshare:{ avg:26, freq:2 },
+  onlineShopping:{ avg:68, freq:2 },
+  foodDelivery:{ avg:28, freq:3 },
+  wellness:{ avg:25, freq:2 },
+  streaming:{ avg:14, freq:2 },
+  household:{ avg:36, freq:2 },
+  drink:{ avg:16, freq:3 },
+  hangout:{ avg:34, freq:2 },
+  dress:{ avg:95, freq:1 },
+};
+
 function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
+  const defaultReco = NYC_ROUTINE_RECO.train;
   const [form, setForm] = React.useState({
     name: mode==='routine' ? 'Commute' : 'Emergency Fund',
     cat: mode==='routine' ? 'train' : 'travel',
-    amount: mode==='routine' ? '120' : '6000',
+    amount: mode==='routine' ? String(defaultReco.avg) : '6000',
     current: mode==='save' ? '300' : '0',
     plan: 'Weekly',
+    routineInputMode:'avg',
+    avgInput:String(defaultReco.avg),
+    freqInput:String(defaultReco.freq),
   });
   const set = k => v => setForm(f => ({ ...f, [k]: v }));
-  const canCreate = form.name.trim() && parseInt(form.amount,10) > 0;
+  const quickCats = ['dineOut','train','rideshare','onlineShopping','foodDelivery','wellness','streaming','household','drink','hangout','dress'];
+  const reco = NYC_ROUTINE_RECO[form.cat] || { avg:35, freq:3 };
+  const numericRoutineInput = form.routineInputMode === 'avg'
+    ? (parseInt(form.avgInput, 10) || 0)
+    : (parseInt(form.freqInput, 10) || 0);
+  const canCreate = mode==='routine'
+    ? (form.name.trim() && numericRoutineInput > 0)
+    : (form.name.trim() && parseInt(form.amount,10) > 0);
 
-  const quickCats = ['dineOut','train','rideshare','onlineShopping','foodDelivery','wellness','streaming','household'];
+  const switchCat = (id) => {
+    const nextReco = NYC_ROUTINE_RECO[id] || { avg:35, freq:3 };
+    setForm(f => ({
+      ...f,
+      cat:id,
+      avgInput:String(nextReco.avg),
+      freqInput:String(nextReco.freq),
+      amount:String(nextReco.avg),
+    }));
+  };
+
+  const submit = () => {
+    if (!canCreate || !onCreateGoal) return;
+    if (mode === 'routine') {
+      const avgValue = form.routineInputMode === 'avg'
+        ? Math.max(1, parseInt(form.avgInput, 10) || 0)
+        : Math.max(1, Math.round((parseInt(form.freqInput, 10) || 0) * reco.avg));
+      onCreateGoal({
+        ...form,
+        amount:String(avgValue),
+      });
+      return;
+    }
+    onCreateGoal(form);
+  };
 
   return (
     <div style={{ flex:1, backgroundColor:P.color.cream, overflowY:'auto', paddingBottom:100 }}>
@@ -3916,7 +4097,7 @@ function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
           </div>
           <div style={{ padding:'14px 16px', display:'flex', gap:8, flexWrap:'wrap' }}>
             {quickCats.map(id => (
-              <button key={id} onClick={() => set('cat')(id)}
+              <button key={id} onClick={() => switchCat(id)}
                 style={{ border:'none', borderRadius:P.r.pill, padding:'7px 11px', cursor:'pointer',
                   backgroundColor: form.cat===id ? P.color.green : P.color.stone,
                   color: form.cat===id ? P.color.white : P.color.black,
@@ -3927,21 +4108,63 @@ function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
           </div>
         </div>
 
-        <div style={{ marginTop:14, backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'14px 16px', boxShadow:P.shadow.sm }}>
-          <p style={{ margin:'0 0 8px', fontFamily:P.font.body, fontSize:12, fontWeight:700, color:P.color.ink3, textTransform:'uppercase', letterSpacing:.6 }}>
-            {mode==='routine' ? 'Your Ideal Spent' : 'Target Amount'}
-          </p>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
-            <p style={{ margin:0, fontFamily:P.font.body, fontSize:12, color:P.color.ink3, maxWidth:190 }}>
-              {mode==='routine' ? 'We will tune this each week from your spending behavior.' : 'Set how much you want to save.'}
+        {mode==='routine' ? (
+          <div style={{ marginTop:14, backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'14px 16px', boxShadow:P.shadow.sm }}>
+            <p style={{ margin:'0 0 8px', fontFamily:P.font.body, fontSize:12, fontWeight:700, color:P.color.ink3, textTransform:'uppercase', letterSpacing:.6 }}>
+              Planning Input
             </p>
-            <div style={{ backgroundColor:P.color.stone, borderRadius:P.r.pill, padding:'8px 12px', display:'flex', alignItems:'center', gap:4 }}>
-              <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:24 }}>$</span>
-              <input type="number" value={form.amount} onChange={e=>set('amount')(e.target.value)}
-                style={{ width:72, border:'none', borderBottom:`1px solid ${P.color.black}`, background:'transparent', textAlign:'right', fontFamily:P.font.display, fontWeight:700, fontSize:24, outline:'none' }}/>
+            <div style={{ display:'flex', backgroundColor:P.color.stone, borderRadius:P.r.pill, padding:4, marginBottom:10 }}>
+              {[
+                { id:'avg', label:'Ideal Avg ($)' },
+                { id:'freq', label:'Frequency (/wk)' },
+              ].map(opt => (
+                <button key={opt.id} onClick={() => set('routineInputMode')(opt.id)}
+                  style={{ flex:1, height:34, border:'none', borderRadius:P.r.pill, cursor:'pointer',
+                    backgroundColor: form.routineInputMode===opt.id ? P.color.green : 'transparent',
+                    color: form.routineInputMode===opt.id ? P.color.white : P.color.ink2,
+                    fontFamily:P.font.body, fontSize:11, fontWeight:700 }}>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+              <p style={{ margin:0, fontFamily:P.font.body, fontSize:12, color:P.color.ink3, maxWidth:170 }}>
+                {form.routineInputMode==='avg'
+                  ? 'Input your target spend each time.'
+                  : 'Input expected visits per week.'}
+              </p>
+              <div style={{ backgroundColor:P.color.stone, borderRadius:P.r.pill, padding:'8px 12px', display:'flex', alignItems:'center', gap:4 }}>
+                <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:24 }}>
+                  {form.routineInputMode==='avg' ? '$' : '#'}
+                </span>
+                <input
+                  type="number"
+                  value={form.routineInputMode==='avg' ? form.avgInput : form.freqInput}
+                  onChange={e=>set(form.routineInputMode==='avg' ? 'avgInput' : 'freqInput')(e.target.value)}
+                  style={{ width:72, border:'none', borderBottom:`1px solid ${P.color.black}`, background:'transparent', textAlign:'right', fontFamily:P.font.display, fontWeight:700, fontSize:24, outline:'none' }}/>
+              </div>
+            </div>
+            <p style={{ margin:'8px 0 0', fontFamily:P.font.body, fontSize:11, color:P.color.ink3 }}>
+              NYC recommendation: ${reco.avg} per spend · {reco.freq} times/week
+            </p>
+          </div>
+        ) : (
+          <div style={{ marginTop:14, backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'14px 16px', boxShadow:P.shadow.sm }}>
+            <p style={{ margin:'0 0 8px', fontFamily:P.font.body, fontSize:12, fontWeight:700, color:P.color.ink3, textTransform:'uppercase', letterSpacing:.6 }}>
+              Target Amount
+            </p>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+              <p style={{ margin:0, fontFamily:P.font.body, fontSize:12, color:P.color.ink3, maxWidth:190 }}>
+                Set how much you want to save.
+              </p>
+              <div style={{ backgroundColor:P.color.stone, borderRadius:P.r.pill, padding:'8px 12px', display:'flex', alignItems:'center', gap:4 }}>
+                <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:24 }}>$</span>
+                <input type="number" value={form.amount} onChange={e=>set('amount')(e.target.value)}
+                  style={{ width:72, border:'none', borderBottom:`1px solid ${P.color.black}`, background:'transparent', textAlign:'right', fontFamily:P.font.display, fontWeight:700, fontSize:24, outline:'none' }}/>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {mode==='save' && (
           <div style={{ marginTop:12, backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'14px 16px', boxShadow:P.shadow.sm }}>
@@ -3954,24 +4177,22 @@ function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
           </div>
         )}
 
-        {mode==='routine' && (
-          <div style={{ marginTop:12, backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'14px 16px', boxShadow:P.shadow.sm }}>
-            <p style={{ margin:'0 0 8px', fontFamily:P.font.body, fontSize:12, fontWeight:700, color:P.color.ink3, textTransform:'uppercase', letterSpacing:.6 }}>Frequency</p>
-            <div style={{ display:'flex', gap:8 }}>
-              {['Daily','Weekly','Monthly'].map(p => (
-                <button key={p} onClick={()=>set('plan')(p)}
-                  style={{ flex:1, height:40, border:'none', borderRadius:P.r.md, cursor:'pointer',
-                    backgroundColor: form.plan===p ? P.color.green : P.color.stone,
-                    color: form.plan===p ? P.color.white : P.color.black,
-                    fontFamily:P.font.body, fontSize:12, fontWeight:700 }}>
-                  {p}
-                </button>
-              ))}
-            </div>
+        <div style={{ marginTop:12, backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'14px 16px', boxShadow:P.shadow.sm }}>
+          <p style={{ margin:'0 0 8px', fontFamily:P.font.body, fontSize:12, fontWeight:700, color:P.color.ink3, textTransform:'uppercase', letterSpacing:.6 }}>Frequency</p>
+          <div style={{ display:'flex', gap:8 }}>
+            {['Daily','Weekly','Monthly'].map(p => (
+              <button key={p} onClick={()=>set('plan')(p)}
+                style={{ flex:1, height:40, border:'none', borderRadius:P.r.md, cursor:'pointer',
+                  backgroundColor: form.plan===p ? P.color.green : P.color.stone,
+                  color: form.plan===p ? P.color.white : P.color.black,
+                  fontFamily:P.font.body, fontSize:12, fontWeight:700 }}>
+                {p}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
 
-        <button onClick={() => canCreate && onCreateGoal && onCreateGoal(form)}
+        <button onClick={submit}
           style={{ marginTop:18, width:'100%', height:52, border:'none', borderRadius:26, backgroundColor:canCreate ? P.color.green : P.color.ink4, color:P.color.white, fontFamily:P.font.display, fontWeight:700, fontSize:22, cursor:canCreate?'pointer':'not-allowed' }}>
           Continue &gt;
         </button>
@@ -3983,6 +4204,17 @@ function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
 function ScreenGoalBuilderSuccess({ nav, mode='routine', createdGoal }) {
   const title = createdGoal?.name || (mode==='save' ? 'New Saving Goal' : 'New Routine');
   const amount = mode==='save' ? createdGoal?.target : createdGoal?.amount;
+  const SUCCESS_THEME_BY_CAT = {
+    train:      { c1:'#0C4524', c2:'#1B6D3C', img:'https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=1200&q=60' },
+    rideshare:  { c1:'#1E3555', c2:'#2F5F95', img:'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=1200&q=60' },
+    dineOut:    { c1:'#5B3A29', c2:'#8D5A42', img:'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=60' },
+    drink:      { c1:'#355B34', c2:'#4D7A4A', img:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=60' },
+    hangout:    { c1:'#4C3566', c2:'#71529A', img:'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1200&q=60' },
+    dress:      { c1:'#5A2943', c2:'#8A4A6D', img:'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=60' },
+    onlineShopping:{ c1:'#2D2D2D', c2:'#595959', img:'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=60' },
+  };
+  const catId = createdGoal?.cat || 'train';
+  const theme = SUCCESS_THEME_BY_CAT[catId] || { c1:P.color.green, c2:'#1b6d3c', img:'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=60' };
   return (
     <div style={{ flex:1, backgroundColor:P.color.cream, overflowY:'auto', paddingBottom:88 }}>
       <StatusBar />
@@ -3992,8 +4224,16 @@ function ScreenGoalBuilderSuccess({ nav, mode='routine', createdGoal }) {
         </button>
 
         <div style={{ marginTop:18, backgroundColor:P.color.white, borderRadius:P.r.xl, border:`1px solid ${P.color.border}`, overflow:'hidden', boxShadow:P.shadow.md }}>
-          <div style={{ height:228, backgroundColor:P.color.sandLight, position:'relative' }}>
-            <div style={{ position:'absolute', inset:0, opacity:.16, backgroundImage:`repeating-linear-gradient(45deg,${P.color.black} 0,${P.color.black} 1px,transparent 0,transparent 34%)`, backgroundSize:'22px 22px' }}/>
+          <div style={{ height:228, position:'relative', background:`linear-gradient(135deg,${theme.c1} 0%,${theme.c2} 100%)` }}>
+            <img src={theme.img} alt={`${title} theme`}
+              style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', opacity:.3, display:'block' }}/>
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(0,0,0,.05) 0%, rgba(0,0,0,.28) 100%)' }}/>
+            <div style={{ position:'absolute', left:16, bottom:14, display:'flex', alignItems:'center', gap:10 }}>
+              <CatIcon id={catId} size={54} bg="rgba(255,255,255,.22)" color={P.color.white}/>
+              <p style={{ margin:0, fontFamily:P.font.body, fontSize:12, fontWeight:700, color:'rgba(255,255,255,.9)', letterSpacing:.4, textTransform:'uppercase' }}>
+                {CAT_META[catId]?.label || 'Routine'}
+              </p>
+            </div>
           </div>
           <h2 style={{ margin:'16px 0 10px', textAlign:'center', fontFamily:P.font.display, fontWeight:700, fontSize:34 }}>{title}</h2>
           <div style={{ margin:'0 16px 12px', backgroundColor:P.color.stone, borderRadius:P.r.md, padding:'14px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
@@ -4017,7 +4257,7 @@ function ScreenGoalBuilderSuccess({ nav, mode='routine', createdGoal }) {
   );
 }
 
-function ScreenSavingGoalDetail({ nav, goal }) {
+function ScreenSavingGoalDetail({ nav, goal, onAddSaved }) {
   const [manualLogOpen, setManualLogOpen] = React.useState(false);
   const [manualPlace, setManualPlace] = React.useState('');
   const [manualAmount, setManualAmount] = React.useState('');
@@ -4080,7 +4320,12 @@ function ScreenSavingGoalDetail({ nav, goal }) {
           <p style={{ margin:'0 0 10px', fontFamily:P.font.body, fontSize:12, fontWeight:700, color:P.color.ink3, textTransform:'uppercase', letterSpacing:.6 }}>Quick Add</p>
           <div style={{ display:'flex', gap:8 }}>
             {[25,50,100].map(v => (
-              <button key={v} style={{ flex:1, height:38, border:'none', borderRadius:20, backgroundColor:P.color.stone, fontFamily:P.font.body, fontWeight:700, cursor:'pointer' }}>
+              <button key={v}
+                onClick={() => {
+                  onAddSaved && onAddSaved(goal.id, v);
+                  setManualSaved(`Saved +$${v.toFixed(2)} toward ${goal.name}`);
+                }}
+                style={{ flex:1, height:38, border:'none', borderRadius:20, backgroundColor:P.color.stone, fontFamily:P.font.body, fontWeight:700, cursor:'pointer' }}>
                 +${v}
               </button>
             ))}
@@ -4132,6 +4377,7 @@ function ScreenSavingGoalDetail({ nav, goal }) {
             onClick={() => {
               const amount = parseFloat(manualAmount);
               if (!manualPlace.trim() || Number.isNaN(amount) || amount <= 0) return;
+              onAddSaved && onAddSaved(goal.id, amount);
               setManualSaved(`Logged: ${manualPlace.trim()} · $${amount.toFixed(2)}${manualNote.trim() ? ` · ${manualNote.trim()}` : ''}`);
               setManualLogOpen(false);
               setManualPlace('');
@@ -4808,6 +5054,7 @@ function App() {
   const [routineGoals, setRoutineGoals] = React.useState(ROUTINE_GOALS);
   const [saveGoals, setSaveGoals] = React.useState(SAVE_GOALS);
   const [createdGoal, setCreatedGoal] = React.useState(null);
+  const [pendingRoutine, setPendingRoutine] = React.useState(null);
   const [entryType, setEntryType]    = React.useState('existing');
   const [showReflectPopup, setShowReflectPopup] = React.useState(false);
   const [forceReflect, setForceReflect] = React.useState(false);
@@ -4877,6 +5124,12 @@ function App() {
     const t = setTimeout(() => setRibbonBurst(false), 1450);
     return () => clearTimeout(t);
   }, [ribbonBurst]);
+
+  React.useEffect(() => {
+    if (!pendingRoutine) return;
+    if (['goalBuilder', 'adjustment', 'goalBuilderSuccess'].includes(screen)) return;
+    setPendingRoutine(null);
+  }, [screen, pendingRoutine]);
 
   React.useEffect(()=>{
     const grid = document.getElementById('sm-grid');
@@ -5011,10 +5264,9 @@ function App() {
         plan: form.plan || 'Weekly',
         priority: routineGoals.length + 1,
       };
-      const next = [...routineGoals, entry].map((g, i) => ({ ...g, priority:i+1 }));
-      setRoutineGoals(next);
       setCreatedGoal(entry);
-      nav('goalBuilderSuccess', { mode:'routine' });
+      setPendingRoutine(entry);
+      nav('adjustment', { mode:'routine' });
       return;
     }
     const entry = {
@@ -5033,6 +5285,37 @@ function App() {
     nav('goalBuilderSuccess', { mode:'save', saveGoalId: entry.id });
   };
 
+  const handleSaveAdjustment = (payload) => {
+    if (!payload) return;
+    if (payload.type === 'finalizeRoutineCreate') {
+      setRoutineGoals((payload.routineGoals || []).map((g, i) => ({ ...g, priority:i+1 })));
+      if (payload.createdGoal) setCreatedGoal(payload.createdGoal);
+      setPendingRoutine(null);
+      setRibbonBurst(true);
+      setCelebrateCopy({
+        title:'Routine Updated!',
+        sub:'Penny: "You traded lower-priority spend and made room for what matters most."',
+      });
+      setShowCelebratePopup(true);
+      return;
+    }
+    if (payload.type === 'updateRoutineBudgets') {
+      setRoutineGoals((payload.routineGoals || []).map((g, i) => ({ ...g, priority:i+1 })));
+    }
+  };
+
+  const handleReorderRoutine = (next) => {
+    setRoutineGoals((next || []).map((g, i) => ({ ...g, priority:i+1 })));
+  };
+
+  const handleAddSavedToGoal = (id, delta) => {
+    const amount = Math.max(0, Number(delta) || 0);
+    if (!amount) return;
+    setSaveGoals(prev => prev.map(g => (
+      g.id === id ? { ...g, current: Math.min(g.target, g.current + amount) } : g
+    )));
+  };
+
   const renderScreen = () => {
     switch(screen) {
       case 'welcome':              return <ScreenWelcome nav={nav}/>;
@@ -5049,14 +5332,14 @@ function App() {
       case 'challengeDetail':      return <ScreenChallengeDetailV2 nav={nav}/>;
       case 'notification':         return <ScreenNotification nav={nav}/>;
       case 'spending':             return <ScreenSpendingV2 onTab={nav} navCat={navCat}/>;
-      case 'goals':                return <ScreenGoals onTab={nav} nav={nav} routineGoals={routineGoals} saveGoals={saveGoals}/>;
-      case 'adjustment':           return <ScreenAdjustment nav={nav} routineGoals={routineGoals} onSaveAdjustment={setRoutineGoals}/>;
+      case 'goals':                return <ScreenGoals onTab={nav} nav={nav} routineGoals={routineGoals} saveGoals={saveGoals} onReorderRoutine={handleReorderRoutine}/>;
+      case 'adjustment':           return <ScreenAdjustment nav={nav} routineGoals={routineGoals} pendingRoutine={pendingRoutine} onSaveAdjustment={handleSaveAdjustment}/>;
       case 'categoryDetail':       return <ScreenCategoryDetail nav={nav} catId={catId}/>;
       case 'profile':              return <ScreenProfileV2 nav={nav} saveGoals={saveGoals}/>;
       case 'achievements':         return <ScreenAchievements nav={nav}/>;
       case 'goalBuilder':          return <ScreenGoalBuilder nav={nav} mode={goalMode} onCreateGoal={handleCreateGoal}/>;
       case 'goalBuilderSuccess':   return <ScreenGoalBuilderSuccess nav={nav} mode={goalMode} createdGoal={createdGoal}/>;
-      case 'savingGoalDetail':     return <ScreenSavingGoalDetail nav={nav} goal={activeSaveGoal}/>;
+      case 'savingGoalDetail':     return <ScreenSavingGoalDetail nav={nav} goal={activeSaveGoal} onAddSaved={handleAddSavedToGoal}/>;
       default:                     return <ScreenWelcome nav={nav}/>;
     }
   };
