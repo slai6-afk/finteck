@@ -169,7 +169,7 @@ const P = {
     ink2:      '#4A4A46',
     ink3:      '#6D685F',
     ink4:      '#989186',
-    border:    'transparent',
+    border:    '#E5DDD8',
     stone:     '#F3EEE5',
     // Semantic
     aligned:      '#0C4524',
@@ -188,7 +188,26 @@ const P = {
     ui:      '"Poppins", system-ui, sans-serif',
   },
   r: { sm:8, md:12, lg:20, xl:28, pill:100 },
-  sp: { xs:4, sm:8, md:16, lg:24, xl:32 },
+  // 4-pt spacing grid — always use a multiple of 4
+  sp: { 1:4, 2:8, 3:12, 4:16, 5:20, 6:24, 7:32, 8:40, 9:48, 10:56,
+        xs:4, sm:8, md:16, lg:24, xl:32 },
+  // Type scale — two tiers: Display (Playfair) for headings, UI (Poppins) for body/buttons
+  text: {
+    // Headings — Playfair Display
+    hero:     { fontFamily:'"Playfair Display",Georgia,serif', fontSize:32, fontWeight:700, letterSpacing:'-.5px', lineHeight:1.1  },
+    h1:       { fontFamily:'"Playfair Display",Georgia,serif', fontSize:28, fontWeight:700, letterSpacing:'-.4px', lineHeight:1.15 },
+    h2:       { fontFamily:'"Playfair Display",Georgia,serif', fontSize:22, fontWeight:700, letterSpacing:'-.3px', lineHeight:1.2  },
+    h3:       { fontFamily:'"Playfair Display",Georgia,serif', fontSize:18, fontWeight:700, letterSpacing:'-.2px', lineHeight:1.25 },
+    // Body — Poppins
+    bodyL:    { fontFamily:'"Poppins",system-ui,sans-serif',   fontSize:15, fontWeight:400, lineHeight:1.5  },
+    body:     { fontFamily:'"Poppins",system-ui,sans-serif',   fontSize:13, fontWeight:400, lineHeight:1.6  },
+    bodyBold: { fontFamily:'"Poppins",system-ui,sans-serif',   fontSize:13, fontWeight:700, lineHeight:1.6  },
+    small:    { fontFamily:'"Poppins",system-ui,sans-serif',   fontSize:11, fontWeight:400, lineHeight:1.4  },
+    label:    { fontFamily:'"Poppins",system-ui,sans-serif',   fontSize:11, fontWeight:700, letterSpacing:.8, textTransform:'uppercase' },
+    // Buttons — two consistent tiers
+    btnPrimary: { fontFamily:'"Poppins",system-ui,sans-serif', fontSize:16, fontWeight:600, letterSpacing:'.1px' },
+    btnSmall:   { fontFamily:'"Poppins",system-ui,sans-serif', fontSize:13, fontWeight:500, letterSpacing:'.1px' },
+  },
   shadow: {
     sm: 'none',
     md: 'none',
@@ -359,7 +378,7 @@ function BottomNav({ active, onTab, guideTab }) {
         return (
           <button key={t.id} onClick={() => onTab(t.id)}
             style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center',
-              gap:3, background:'none', border:'none', cursor:'pointer',
+              gap:4, background:'none', border:'none', cursor:'pointer',
               color: isActive ? P.color.green : P.color.ink4, transition:'color .2s' }}>
             <div className={isGuide ? 'nav-guide-pulse' : ''}
               style={{ width:42, height:36, borderRadius:P.r.pill,
@@ -385,7 +404,7 @@ function BottomNav({ active, onTab, guideTab }) {
 // ─── BUTTON ──────────────────────────────────────────────────────
 function PBtn({ label, onClick, variant='primary', icon, style:s={} }) {
   const base = { width:'100%', height:56, borderRadius:P.r.md, cursor:'pointer',
-    fontFamily:P.font.display, fontSize:17, letterSpacing:'.3px', border:'none',
+    fontFamily:P.font.body, fontSize:16, fontWeight:600, letterSpacing:'.1px', border:'none',
     transition:'opacity .15s, transform .1s', display:'flex',
     alignItems:'center', justifyContent:'center', gap:8 };
   const vars = {
@@ -412,8 +431,8 @@ function PBtn({ label, onClick, variant='primary', icon, style:s={} }) {
 // ─── BACK BUTTON ─────────────────────────────────────────────────
 function BackBtn({ onClick, light=false }) {
   return (
-    <button onClick={onClick} style={{ position:'absolute', top:54, left:20,
-      width:38, height:38, borderRadius:'50%',
+    <button onClick={onClick} style={{ position:'absolute', top:62, left:20,
+      width:44, height:44, borderRadius:'50%',
       backgroundColor: light ? 'rgba(255,255,255,.25)' : P.color.stone,
       border:'none', cursor:'pointer', display:'flex', alignItems:'center',
       justifyContent:'center', zIndex:10 }}>
@@ -455,7 +474,7 @@ function SpendTag({ type }) {
   return (
     <span style={{ fontFamily:P.font.body, fontSize:11, fontWeight:700,
       color:t.color, backgroundColor:t.bg, borderRadius:P.r.pill,
-      padding:'3px 10px', letterSpacing:.4, display:'inline-block' }}>
+      padding:'4px 12px', letterSpacing:.4, display:'inline-block' }}>
       {t.label}
     </span>
   );
@@ -520,29 +539,46 @@ function ScreenWelcome({ nav }) {
         <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:28,
           color:P.color.green, letterSpacing:'-.5px' }}>penny.</span>
       </div>
+      {/* Pig — centred, breathing room above & below */}
       <div style={{ flex:1, display:'flex', flexDirection:'column',
-        alignItems:'center', justifyContent:'center', gap:24 }}>
-        {/* Mascot on sand bg circle */}
-        <div style={{ width:220, height:220, borderRadius:'50%',
+        alignItems:'center', justifyContent:'center', gap:0 }}>
+        <div style={{ width:180, height:180, borderRadius:'50%',
           backgroundColor:'rgb(233,171,181)', display:'flex', alignItems:'center',
-          justifyContent:'center', boxShadow:`0 8px 40px rgba(12,69,36,.12)` }}>
-          <PigMascot size={190} />
+          justifyContent:'center', boxShadow:`0 8px 40px rgba(12,69,36,.12)`,
+          marginBottom:28 }}>
+          <PigMascot size={154} />
         </div>
-        <div style={{ textAlign:'center' }}>
-          <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:32,
-            color:P.color.black, margin:0, lineHeight:1.1, letterSpacing:'-.5px' }}>
-            Hello, Welcome<br/>to Penny!
-          </h1>
-          <p style={{ fontFamily:P.font.body, fontSize:14, color:P.color.ink3,
-            margin:'10px 0 0', lineHeight:1.5 }}>Your mindful spending companion</p>
+
+        {/* Headline */}
+        <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:32,
+          color:P.color.black, margin:'0 0 12px', lineHeight:1.1,
+          letterSpacing:'-.5px', textAlign:'center' }}>
+          Hello, Welcome<br/>to Penny!
+        </h1>
+
+        {/* 3 value props — compact pill rows */}
+        <div style={{ display:'flex', flexDirection:'column', gap:12, width:'100%',
+          backgroundColor:'rgba(255,255,255,.6)', borderRadius:P.r.lg, padding:'16px 20px' }}>
+          {[
+            ['🎯', 'Tell us what matters to you'],
+            ['⚖️', 'We learn your spending values'],
+            ['✨', 'Nudge when you drift, cheer when aligned'],
+          ].map(([icon, text]) => (
+            <div key={text} style={{ display:'flex', alignItems:'center', gap:12 }}>
+              <span style={{ fontSize:15, flexShrink:0 }}>{icon}</span>
+              <span style={{ fontFamily:P.font.body, fontSize:12, color:P.color.ink2, fontWeight:600, lineHeight:1.4 }}>{text}</span>
+            </div>
+          ))}
         </div>
       </div>
-      <div style={{ width:'100%', display:'flex', flexDirection:'column', gap:10 }}>
+
+      {/* CTAs — pinned to bottom with clear safe area */}
+      <div style={{ width:'100%', display:'flex', flexDirection:'column', gap:12, paddingTop:24 }}>
         <PBtn label="I'm New to Penny" onClick={() => {
           localStorage.removeItem('penny_bank_link_done');
           localStorage.removeItem('penny_first_guide_done');
           localStorage.removeItem('penny_main_tabs_coached');
-          nav('onboardingIntro', { entry:'new' });
+          nav('prioritizeSelect', { entry:'new' });
         }} variant="primary" />
         <PBtn label="Have an account" variant="ghost" onClick={() => nav('login', { entry:'existing' })} />
       </div>
@@ -555,7 +591,7 @@ function ScreenOnboardingIntro({ nav }) {
     <div style={{ flex:1, backgroundColor:P.color.sandLight, display:'flex',
       flexDirection:'column', justifyContent:'space-between', padding:'64px 24px 44px', position:'relative' }}>
       <StatusBar />
-      <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+      <div style={{ display:'flex', alignItems:'center', gap:12 }}>
         <button onClick={() => nav('__back__')}
           style={{ width:34, height:34, borderRadius:'50%', border:`1px solid ${P.color.border}`,
             backgroundColor:P.color.white, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -566,7 +602,7 @@ function ScreenOnboardingIntro({ nav }) {
         </p>
       </div>
 
-      <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', gap:18 }}>
+      <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', gap:16 }}>
         <div style={{ width:190, height:190, borderRadius:'50%', backgroundColor:'#F8D3DA', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:P.shadow.md }}>
           <PigMascot size={162} style={{ animation:'pigFloat 2.4s ease-in-out infinite' }}/>
         </div>
@@ -583,7 +619,7 @@ function ScreenOnboardingIntro({ nav }) {
         </p>
       </div>
 
-      <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+      <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
         <PBtn label="Create my account" onClick={() => nav('createAccount', { entry:'new' })}/>
         <PBtn label="I already have an account" variant="ghost" onClick={() => nav('login', { entry:'existing' })}/>
       </div>
@@ -600,9 +636,9 @@ function ScreenLogin({ nav }) {
       flexDirection:'column', padding:'0 28px', position:'relative' }}>
       <StatusBar />
       <BackBtn onClick={() => nav('__back__')} />
-      <div style={{ paddingTop:108, flex:1 }}>
+      <div style={{ paddingTop:120, flex:1 }}>
         <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:28,
-          color:P.color.black, margin:'0 0 6px', letterSpacing:'-.4px' }}>Sign In</h1>
+          color:P.color.black, margin:'0 0 8px', letterSpacing:'-.4px' }}>Sign In</h1>
         <p style={{ fontFamily:P.font.body, fontSize:13, color:P.color.ink3, margin:'0 0 28px' }}>
           Welcome back — let's see how you're doing
         </p>
@@ -612,7 +648,7 @@ function ScreenLogin({ nav }) {
           <PInput placeholder="Password" type="password" value={pass}
             onChange={e=>setPass(e.target.value)} iconName="lock" />
           <button onClick={() => nav('verifyEmail')} style={{ background:'none', border:'none', cursor:'pointer',
-            textAlign:'right', fontFamily:P.font.body, fontSize:13,
+            textAlign:'right', fontFamily:P.font.body, fontSize:13, fontWeight:500,
             color:P.color.ink3, padding:0 }}>Forgot password?</button>
         </div>
         <div style={{ marginTop:24 }}>
@@ -633,35 +669,43 @@ function ScreenLogin({ nav }) {
 
 // ── Create Account ────────────────────────────────────────────────
 function ScreenCreateAccount({ nav }) {
-  const [form, setForm] = React.useState({ name:'', email:'', phone:'', pass:'', confirm:'' });
+  const [form, setForm] = React.useState({ first:'', last:'', email:'', pass:'' });
+  const [showPass, setShowPass] = React.useState(false);
   const set = k => e => setForm(f=>({...f,[k]:e.target.value}));
   return (
-    <div style={{ flex:1, backgroundColor:P.color.white, display:'flex',
+    <div style={{ flex:1, backgroundColor:'#FAF3F0', display:'flex',
       flexDirection:'column', padding:'0 28px', position:'relative', overflowY:'auto' }}>
       <StatusBar />
-      <BackBtn onClick={() => nav('__back__')} />
-      <div style={{ paddingTop:108, paddingBottom:40 }}>
+      <div style={{ paddingTop:88, paddingBottom:44 }}>
         <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:28,
-          color:P.color.black, margin:'0 0 6px', letterSpacing:'-.4px' }}>Create Account</h1>
-        <p style={{ fontFamily:P.font.body, fontSize:13, color:P.color.ink3, margin:'0 0 28px' }}>
-          Start your journey toward intentional spending
+          color:P.color.black, margin:'0 0 8px', letterSpacing:'-.4px' }}>Create Account</h1>
+        <p style={{ fontFamily:P.font.body, fontSize:13, color:P.color.ink3, margin:'0 0 32px' }}>
+          Start your mindful money journey.
         </p>
-        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-          <PInput placeholder="Full Name" value={form.name} onChange={set('name')} iconName="user" />
-          <PInput placeholder="Email Address" type="email" value={form.email} onChange={set('email')} iconName="mail" />
-          <PInput placeholder="Phone Number" type="tel" value={form.phone} onChange={set('phone')} iconName="phone" />
-          <PInput placeholder="Password" type="password" value={form.pass} onChange={set('pass')} iconName="lock" />
-          <PInput placeholder="Confirm Password" type="password" value={form.confirm} onChange={set('confirm')} iconName="check" />
+        <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+          <PInput placeholder="First name" value={form.first} onChange={set('first')} />
+          <PInput placeholder="Last name" value={form.last} onChange={set('last')} />
+          <PInput placeholder="Email address" type="email" value={form.email} onChange={set('email')} />
+          {/* Password with show/hide — removes need for Confirm field */}
+          <div style={{ position:'relative' }}>
+            <PInput placeholder="Password" type={showPass ? 'text' : 'password'}
+              value={form.pass} onChange={set('pass')} />
+            <button onClick={() => setShowPass(s=>!s)}
+              style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)',
+                background:'none', border:'none', cursor:'pointer', padding:4,
+                color:P.color.ink3, fontFamily:P.font.body, fontSize:12, fontWeight:700 }}>
+              {showPass ? 'Hide' : 'Show'}
+            </button>
+          </div>
         </div>
-        <div style={{ marginTop:28 }}>
-          <PBtn label="Create Account" onClick={() => nav('verifyEmail')} />
+        <div style={{ marginTop:32 }}>
+          <PBtn label="Continue" onClick={() => nav('verifyEmail')} />
+          <p style={{ textAlign:'center', fontFamily:P.font.body, fontSize:12,
+            color:P.color.ink4, marginTop:16, lineHeight:1.5 }}>
+            By creating an account you agree to our{' '}
+            <span style={{ color:P.color.ink3 }}>Terms &amp; Privacy Policy</span>
+          </p>
         </div>
-        <p style={{ textAlign:'center', fontFamily:P.font.body, fontSize:12,
-          color:P.color.ink4, marginTop:16, lineHeight:1.5 }}>
-          By continuing you agree to our{' '}
-          <span style={{ color:P.color.green, fontWeight:700 }}>Terms</span> &{' '}
-          <span style={{ color:P.color.green, fontWeight:700 }}>Privacy Policy</span>
-        </p>
       </div>
     </div>
   );
@@ -676,41 +720,41 @@ function ScreenVerifyEmail({ nav }) {
     if (v && i<5) refs[i+1].current?.focus();
   };
   return (
-    <div style={{ flex:1, backgroundColor:P.color.white, display:'flex',
+    <div style={{ flex:1, backgroundColor:'#FAF3F0', display:'flex',
       flexDirection:'column', padding:'0 28px', position:'relative' }}>
       <StatusBar />
-      <BackBtn onClick={() => nav('__back__')} />
-      <div style={{ paddingTop:108, flex:1 }}>
-        <div style={{ width:64, height:64, borderRadius:P.r.xl,
-          backgroundColor:P.color.pinkLight, display:'flex', alignItems:'center',
-          justifyContent:'center', marginBottom:20 }}>
-          <Icon name="mail" size={28} color={P.color.green} />
-        </div>
-        <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:26,
-          color:P.color.black, margin:'0 0 8px', letterSpacing:'-.4px' }}>Check your email</h1>
+      <div style={{ paddingTop:88, flex:1 }}>
+        <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:28,
+          color:P.color.black, margin:'0 0 8px', letterSpacing:'-.4px' }}>Check Your Email</h1>
         <p style={{ fontFamily:P.font.body, fontSize:13, color:P.color.ink3, margin:'0 0 32px', lineHeight:1.6 }}>
-          We sent a 6-digit code to confirm your email address
+          Enter the 6-digit code we sent to your email.
         </p>
-        <div style={{ display:'flex', gap:10, justifyContent:'center', marginBottom:32 }}>
+        <div style={{ display:'flex', gap:8, justifyContent:'flex-start', marginBottom:32 }}>
           {code.map((d,i) => (
             <input key={i} ref={refs[i]} maxLength={1} value={d}
               onChange={e=>handleChange(i,e.target.value)}
-              style={{ width:46, height:56, borderRadius:P.r.md, textAlign:'center',
+              style={{ width:48, height:52, borderRadius:P.r.md, textAlign:'center',
                 fontFamily:P.font.display, fontWeight:700, fontSize:22,
                 border:`2px solid ${d ? P.color.green : P.color.border}`,
-                outline:'none', backgroundColor:d ? P.color.greenLight : P.color.white,
-                color:P.color.black, transition:'border .15s,background .15s' }}/>
+                outline:'none', backgroundColor:P.color.white,
+                color:P.color.black, transition:'border .15s' }}/>
           ))}
         </div>
-        <PBtn label="Verify Email" onClick={() => nav('onboardTask')} />
+        <PBtn label="Continue" onClick={() => nav('home')} />
         <p style={{ textAlign:'center', fontFamily:P.font.body, fontSize:13,
           color:P.color.ink3, marginTop:16 }}>
           Didn't receive it?{' '}
-          <button onClick={() => nav('verifyEmail')} style={{ background:'none', border:'none', cursor:'pointer',
+          <button onClick={() => {}} style={{ background:'none', border:'none', cursor:'pointer',
             color:P.color.green, fontWeight:700, fontFamily:P.font.body, fontSize:13 }}>
             Resend
           </button>
         </p>
+        <button onClick={() => nav('home')}
+          style={{ display:'block', width:'100%', marginTop:24, background:'none', border:'none',
+            cursor:'pointer', fontFamily:P.font.body, fontSize:13, fontWeight:500, color:P.color.ink4,
+            textAlign:'center', textDecoration:'underline', textUnderlineOffset:3 }}>
+          Skip for now — I'll verify later
+        </button>
       </div>
     </div>
   );
@@ -749,7 +793,7 @@ function ScreenOnboardTask({ nav }) {
           padding:'16px 20px', width:'100%', boxShadow:P.shadow.sm }}>
           {['Pick your spending priorities','Rank what matters most to you','Set your saving goals'].map((s,i)=>(
             <div key={i} style={{ display:'flex', alignItems:'center', gap:12,
-              padding:'10px 0', borderBottom:i<2?`1px solid ${P.color.stone}`:'none' }}>
+              padding:'12px 0', borderBottom:i<2?`1px solid ${P.color.stone}`:'none' }}>
               <div style={{ width:26, height:26, borderRadius:'50%',
                 backgroundColor:P.color.pinkLight, display:'flex', alignItems:'center',
                 justifyContent:'center', flexShrink:0 }}>
@@ -794,7 +838,7 @@ function ScreenPrioritizeSelect({ nav, setPriorities }) {
   const toggle = id => setSelected(s =>
     s.includes(id) ? s.filter(x=>x!==id) : [...s, id]
   );
-  const minSel = 4;
+  const minSel = 5;
   const canContinue = selected.length >= minSel;
 
   return (
@@ -802,26 +846,30 @@ function ScreenPrioritizeSelect({ nav, setPriorities }) {
       flexDirection:'column', position:'relative' }}>
       <StatusBar />
       <BackBtn onClick={() => nav('__back__')} />
-      {/* Progress bar */}
-      <div style={{ position:'absolute', top:48, left:60, right:24, height:6,
+      {/* Progress bar — sits beside back button, clear of Dynamic Island */}
+      <div style={{ position:'absolute', top:80, left:76, right:24, height:5,
         borderRadius:P.r.pill, backgroundColor:P.color.stone, overflow:'hidden', zIndex:10 }}>
         <div style={{ width:'33%', height:'100%', borderRadius:P.r.pill,
           backgroundColor:P.color.green }}/>
       </div>
 
-      <div style={{ paddingTop:72, flex:1, overflowY:'auto', paddingBottom:100 }}>
+      <div style={{ paddingTop:116, flex:1, overflowY:'auto', paddingBottom:100 }}>
         <div style={{ padding:'16px 24px 20px' }}>
           <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:22,
-            color:P.color.black, margin:'0 0 6px', letterSpacing:'-.3px', lineHeight:1.2 }}>
-            Select {minSel}+ Things You<br/>Want to Focus on:
+            color:P.color.black, margin:'0 0 8px', letterSpacing:'-.3px', lineHeight:1.2 }}>
+            What do you spend<br/>money on?
           </h1>
-          <p style={{ fontFamily:P.font.body, fontSize:13, color:P.color.ink3, margin:0 }}>
-            {selected.length} selected{selected.length >= minSel ? ' ✓' : ` (min ${minSel})`}
+          <p style={{ fontFamily:P.font.body, fontSize:13, color:P.color.ink2, margin:'0 0 12px', lineHeight:1.6 }}>
+            Pick the categories that are part of your life — no judgment. Penny uses these to understand your spending habits.
+          </p>
+          <p style={{ fontFamily:P.font.body, fontSize:12, color: selected.length >= minSel ? P.color.green : P.color.ink4,
+            margin:0, fontWeight:700 }}>
+            {selected.length} selected{selected.length >= minSel ? ' ✓ Good to go!' : ` — pick at least ${minSel}`}
           </p>
         </div>
 
         {/* Chip grid - flowing layout */}
-        <div style={{ padding:'0 20px', display:'flex', flexWrap:'wrap', gap:10 }}>
+        <div style={{ padding:'0 20px', display:'flex', flexWrap:'wrap', gap:8 }}>
           {ALL_CATS.map(cat => {
             const isSel = selected.includes(cat.id);
             return (
@@ -843,7 +891,7 @@ function ScreenPrioritizeSelect({ nav, setPriorities }) {
       </div>
 
       <div style={{ position:'absolute', bottom:0, left:0, right:0,
-        padding:'16px 24px 40px', backgroundColor:P.color.white,
+        padding:'16px 24px 48px', backgroundColor:P.color.white,
         borderTop:`1px solid ${P.color.border}` }}>
         <PBtn label={`Continue (${selected.length} selected)`}
           onClick={() => { setPriorities(selected); nav('prioritizeTournament'); }}
@@ -863,16 +911,17 @@ function ScreenPrioritizeTournament({ nav, priorities, setRanked }) {
 
   // Generate N-1 matchups for a "king of the hill" style ranking
   const buildMatchups = (items) => {
-    const matchups = [];
-    for (let i = 0; i < items.length - 1; i++) {
-      matchups.push([items[i], items[i+1]]);
+    // Generate all pairs then cap at 6 rounds (enough signal, avoids exhaustion)
+    const all = [];
+    for (let i = 0; i < items.length - 1; i++)
+      for (let j = i + 1; j < items.length; j++)
+        all.push([items[i], items[j]]);
+    // Shuffle for variety, then take max 6
+    for (let i = all.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [all[i], all[j]] = [all[j], all[i]];
     }
-    // Add a few more cross comparisons for better ranking
-    if (items.length > 3) {
-      matchups.push([items[0], items[2]]);
-      if (items.length > 4) matchups.push([items[1], items[3]]);
-    }
-    return matchups;
+    return all.slice(0, 6);
   };
 
   const [matchups] = React.useState(() => buildMatchups(items));
@@ -902,31 +951,31 @@ function ScreenPrioritizeTournament({ nav, priorities, setRanked }) {
       flexDirection:'column', position:'relative', overflow:'hidden' }}>
       <StatusBar />
       {/* Progress */}
-      <div style={{ position:'absolute', top:48, left:60, right:24, height:6,
+      <div style={{ position:'absolute', top:80, left:76, right:24, height:5,
         borderRadius:P.r.pill, backgroundColor:P.color.stone, overflow:'hidden', zIndex:10 }}>
         <div style={{ width:`${progress}%`, height:'100%', borderRadius:P.r.pill,
           backgroundColor:P.color.green, transition:'width .4s ease' }}/>
       </div>
       <BackBtn onClick={() => round > 0 ? setRound(r=>r-1) : nav('prioritizeSelect')} />
 
-      <div style={{ paddingTop:72, flex:1, display:'flex', flexDirection:'column',
-        padding:'72px 24px 24px' }}>
+      <div style={{ paddingTop:116, flex:1, display:'flex', flexDirection:'column',
+        padding:'116px 24px 24px' }}>
         <div style={{ marginBottom:8 }}>
-          <span style={{ fontFamily:P.font.body, fontSize:11, color:P.color.ink3,
+          <span style={{ fontFamily:P.font.body, fontSize:11, color:P.color.ink4,
             fontWeight:700, textTransform:'uppercase', letterSpacing:.8 }}>
-            Round {round+1} of {matchups.length}
+            Quick rank · {round+1} of {matchups.length}
           </span>
         </div>
-        <h2 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:24,
+        <h2 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:22,
           color:P.color.black, margin:'0 0 8px', letterSpacing:'-.3px', lineHeight:1.2 }}>
-          Which matters<br/>more to you?
+          If you had to choose one — which wins?
         </h2>
-        <p style={{ fontFamily:P.font.body, fontSize:13, color:P.color.ink3,
-          margin:'0 0 22px', lineHeight:1.5 }}>
-          Pick the one you care more.
+        <p style={{ fontFamily:P.font.body, fontSize:12, color:P.color.ink3,
+          margin:'0 0 16px', lineHeight:1.4 }}>
+          Be honest — this teaches Penny your real values.
         </p>
 
-        {/* LEFT / RIGHT wrapper */}
+        {/* LEFT / RIGHT wrapper — position:relative so VS circle anchors here */}
         <div style={{ display:'flex', flexDirection:'row', gap:12,
           alignItems:'flex-start', position:'relative', justifyContent:'space-between' }}>
           {[{id:itemA,meta:metaA,side:'left'},{id:itemB,meta:metaB,side:'right'}].map(({id,meta,side})=>{
@@ -937,7 +986,7 @@ function ScreenPrioritizeTournament({ nav, priorities, setRanked }) {
                 onMouseUp={e=>{e.currentTarget.style.transform='scale(1) rotate(0deg)';}}
                 style={{ flex:'0 0 155px', height:300, backgroundColor:P.color.white, borderRadius:P.r.xl,
                   padding:'28px 16px', display:'flex', flexDirection:'column',
-                  alignItems:'center', justifyContent:'center', gap:18,
+                  alignItems:'center', justifyContent:'center', gap:16,
                   border:`2px solid ${P.color.border}`, cursor:'pointer',
                   boxShadow:P.shadow.md, transition:'all .18s cubic-bezier(.4,0,.2,1)',
                   minHeight:300, maxHeight:300 }}>
@@ -961,23 +1010,23 @@ function ScreenPrioritizeTournament({ nav, priorities, setRanked }) {
               </button>
             );
           })}
-        </div>
 
-        {/* VS divider — between cards visually */}
-        <div style={{ position:'absolute', left:'50%', top:250,
-          transform:'translate(-50%,-50%)', zIndex:10,
-          width:40, height:40, borderRadius:'50%',
-          backgroundColor:P.color.sand, border:`2px solid ${P.color.border}`,
-          display:'flex', alignItems:'center', justifyContent:'center',
-          boxShadow:P.shadow.sm, pointerEvents:'none' }}>
-          <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:11,
-            color:P.color.black }}>VS</span>
+          {/* VS divider — inside the cards row so top:50% is relative to card height */}
+          <div style={{ position:'absolute', left:'50%', top:'50%',
+            transform:'translate(-50%,-50%)', zIndex:10,
+            width:40, height:40, borderRadius:'50%',
+            backgroundColor:P.color.sand, border:`2px solid ${P.color.border}`,
+            display:'flex', alignItems:'center', justifyContent:'center',
+            boxShadow:P.shadow.sm, pointerEvents:'none' }}>
+            <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:11,
+              color:P.color.black }}>VS</span>
+          </div>
         </div>
 
         <button onClick={()=>choose(itemA)}
           style={{ background:'none', border:'none', cursor:'pointer',
-            fontFamily:P.font.body, fontSize:12, color:P.color.ink4,
-            marginTop:8, textDecoration:'underline' }}>
+            fontFamily:P.font.body, fontSize:13, fontWeight:500, color:P.color.ink4,
+            marginTop:16, textDecoration:'underline', textUnderlineOffset:3 }}>
           They're equally important →
         </button>
       </div>
@@ -990,28 +1039,37 @@ function ScreenPriorityResult({ nav, ranked, priorities }) {
   const list = ranked && ranked.length ? ranked : (priorities || []).slice(0,6);
   const fallback = ['dining','travel','fitness','social','shopping','education'];
   const finalList = list.length ? list : fallback;
+  const [revealed, setRevealed] = React.useState(false);
+  React.useEffect(() => { const t = setTimeout(() => setRevealed(true), 300); return ()=>clearTimeout(t); }, []);
 
   return (
     <div style={{ flex:1, backgroundColor:P.color.white, display:'flex',
       flexDirection:'column', position:'relative', overflowY:'auto' }}>
       <StatusBar />
       <div style={{ padding:'64px 24px 100px' }}>
-        <div style={{ textAlign:'center', marginBottom:28 }}>
-          <div style={{ width:64, height:64, borderRadius:'50%',
+        <div style={{ textAlign:'center', marginBottom:32,
+          opacity: revealed ? 1 : 0, transform: revealed ? 'none' : 'translateY(12px)',
+          transition:'opacity .5s ease, transform .5s ease' }}>
+          <div style={{ width:72, height:72, borderRadius:'50%',
             backgroundColor:P.color.pinkLight, display:'flex', alignItems:'center',
-            justifyContent:'center', margin:'0 auto 12px' }}>
-            <Icon name="award" size={32} color={P.color.green} />
+            justifyContent:'center', margin:'0 auto 16px',
+            boxShadow:`0 0 0 ${revealed?'12px':'0px'} rgba(248,178,189,.25)`,
+            transition:'box-shadow .6s ease .2s' }}>
+            <Icon name="award" size={36} color={P.color.green} />
           </div>
-          <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:26,
-            color:P.color.black, margin:'0 0 6px', letterSpacing:'-.4px' }}>
-            Your Priority List
+          <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:28,
+            color:P.color.black, margin:'0 0 8px', letterSpacing:'-.4px' }}>
+            Your spending values,<br/>ranked ✓
           </h1>
-          <p style={{ fontFamily:P.font.body, fontSize:13, color:P.color.ink3, margin:0 }}>
-            We'll help you spend in line with what matters most
+          <p style={{ fontFamily:P.font.body, fontSize:13, color:P.color.ink2, margin:'0 0 4px', lineHeight:1.6 }}>
+            Penny will track spending in these areas and gently flag when you're drifting — and celebrate when you're on track.
+          </p>
+          <p style={{ fontFamily:P.font.body, fontSize:12, color:P.color.ink4, margin:0, fontStyle:'italic' }}>
+            Create a free account to save this and start.
           </p>
         </div>
 
-        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           {finalList.map((id, i) => {
             const meta = CAT_META[id] || { icon:'shopping', label:id };
             const rankColors = [P.color.sand, P.color.pink, P.color.greenLight];
@@ -1039,8 +1097,8 @@ function ScreenPriorityResult({ nav, ranked, priorities }) {
           })}
         </div>
 
-        <div style={{ marginTop:28 }}>
-          <PBtn label="Continue to Penny →" onClick={() => nav('home')} />
+        <div style={{ marginTop:32 }}>
+          <PBtn label="Continue to Penny →" onClick={() => nav('createAccount')} />
         </div>
       </div>
     </div>
@@ -3758,7 +3816,7 @@ function BottomNavV2({ active, onTab }) {
         return (
           <button key={t.id} onClick={()=>onTab(t.id)}
             style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center',
-              gap:3, background:'none', border:'none', cursor:'pointer',
+              gap:4, background:'none', border:'none', cursor:'pointer',
               color:on?P.color.green:P.color.ink4, transition:'color .2s' }}>
             <div style={{ width:44, height:36, borderRadius:P.r.pill,
               backgroundColor:on?P.color.greenLight:'transparent',
@@ -4847,13 +4905,8 @@ function ScreenProfileV2({ nav, saveGoals }) {
           ))}
         </div>
 
-        <div style={{ padding:'14px 0 4px' }}>
-          <button onClick={()=>nav('welcome')}
-            style={{ width:'100%', height:54, border:'none', borderRadius:28, backgroundColor:P.color.green,
-              color:P.color.white, fontFamily:P.font.display, fontWeight:700, fontSize:24, letterSpacing:'.2px',
-              cursor:'pointer' }}>
-            Sign Out
-          </button>
+        <div style={{ padding:'16px 0 4px' }}>
+          <PBtn label="Sign Out" variant="primary" onClick={()=>nav('welcome')} />
         </div>
         <BottomLineNote pad="8px 0 4px" />
       </div>
