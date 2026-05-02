@@ -576,8 +576,7 @@ function ScreenWelcome({ nav }) {
       <div style={{ width:'100%', display:'flex', flexDirection:'column', gap:12, paddingTop:24 }}>
         <PBtn label="I'm New to Penny" onClick={() => {
           localStorage.removeItem('penny_bank_link_done');
-          localStorage.removeItem('penny_first_guide_done');
-          localStorage.removeItem('penny_main_tabs_coached');
+          localStorage.removeItem('penny_seen_tabs');
           nav('prioritizeSelect', { entry:'new' });
         }} variant="primary" />
         <PBtn label="Have an account" variant="ghost" onClick={() => nav('login', { entry:'existing' })} />
@@ -2573,48 +2572,42 @@ function BankUnlockPopup({ open, onClose, onConnected }) {
   );
 }
 
-const MAIN_PAGE_TIPS = [
-  { tab:'home', title:'Start at Home', sub:'See today\'s focus and your next best action.' },
-  { tab:'spending', title:'Check Spending', sub:'Understand where your money went this month.' },
-  { tab:'goals', title:'Open Goals', sub:'Adjust routines or savings in one tap.' },
-  { tab:'profile', title:'Visit Profile', sub:'Review wins and tune your settings.' },
-];
+// ─── FIRST-VISIT HINT ────────────────────────────────────────────
+// Non-blocking: appears when user visits a tab for the first time,
+// auto-dismisses in 4s, no overlay, no forced order.
+const TAB_HINTS = {
+  home:     { title:'Your daily pulse', sub:'Today\'s challenge and spending focus are right here.' },
+  spending: { title:'Where money goes', sub:'See categories, alignment tags, and monthly trends.' },
+  goals:    { title:'Goals & routines', sub:'Build savings habits that match your priorities.' },
+  profile:  { title:'Your Penny profile', sub:'Priorities, streaks, and personal settings.' },
+};
 
-function HomeOnboardingBubble({ open, step=0, canNext=false, onSkip, onNext }) {
-  if (!open) return null;
-  const tip = MAIN_PAGE_TIPS[step] || MAIN_PAGE_TIPS[0];
+function FirstVisitHint({ tab, onDismiss }) {
+  if (!tab || !TAB_HINTS[tab]) return null;
+  const hint = TAB_HINTS[tab];
   return (
-    <div style={{ position:'absolute', left:14, right:14, bottom:92, zIndex:610, pointerEvents:'none' }}>
-      <div style={{ pointerEvents:'auto', backgroundColor:P.color.white, borderRadius:18, boxShadow:P.shadow.lg,
-        border:`1px solid ${P.color.border}`, padding:'12px 12px 10px', animation:'fadeSlideUp .24s ease both' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-          <div style={{ width:32, height:32, borderRadius:'50%', backgroundColor:P.color.pinkLight, display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <PigMascot size={30}/>
-          </div>
-          <div style={{ flex:1 }}>
-            <p style={{ margin:0, fontFamily:P.font.display, fontWeight:700, fontSize:20, lineHeight:1 }}>{tip.title}</p>
-            <p style={{ margin:'3px 0 0', fontFamily:P.font.body, fontSize:12, color:P.color.ink2 }}>{tip.sub}</p>
-            <p style={{ margin:'2px 0 0', fontFamily:P.font.body, fontSize:11, color:P.color.ink3 }}>
-              Tap the highlighted tab. I&apos;ll guide you.
-            </p>
-          </div>
-          <button onClick={onSkip} style={{ border:'none', background:'none', cursor:'pointer', color:P.color.ink3, fontFamily:P.font.body, fontSize:12, fontWeight:700 }}>
-            Skip
-          </button>
+    <div style={{ position:'absolute', left:16, right:16, bottom:92, zIndex:610, pointerEvents:'none' }}>
+      <div style={{ pointerEvents:'auto', backgroundColor:P.color.white,
+        borderRadius:16, boxShadow:'0 4px 24px rgba(0,0,0,.12)',
+        border:`1px solid ${P.color.border}`, padding:'10px 12px',
+        display:'flex', alignItems:'center', gap:10,
+        animation:'fadeSlideUp .22s ease both' }}>
+        <div style={{ width:28, height:28, borderRadius:'50%', backgroundColor:P.color.pinkLight,
+          display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <PigMascot size={26}/>
         </div>
-        <div style={{ marginTop:8, display:'flex', alignItems:'center', gap:8 }}>
-          <div style={{ display:'flex', gap:4 }}>
-            {MAIN_PAGE_TIPS.map((_, i) => (
-              <span key={i} style={{ width:i===step?18:6, height:6, borderRadius:99, backgroundColor:i===step?P.color.green:P.color.border, transition:'all .2s' }}/>
-            ))}
-          </div>
-          <button onClick={onNext}
-            style={{ border:'none', backgroundColor:P.color.green, color:P.color.white,
-              borderRadius:14, padding:'6px 12px', cursor:canNext?'pointer':'not-allowed',
-              opacity:canNext?1:.45, fontFamily:P.font.body, fontWeight:700, fontSize:11 }}>
-            {step >= MAIN_PAGE_TIPS.length-1 ? 'Done' : 'Next'}
-          </button>
+        <div style={{ flex:1 }}>
+          <p style={{ margin:0, fontFamily:P.font.body, fontWeight:700, fontSize:13, color:P.color.black }}>
+            {hint.title}
+          </p>
+          <p style={{ margin:'2px 0 0', fontFamily:P.font.body, fontSize:12, color:P.color.ink3, lineHeight:1.4 }}>
+            {hint.sub}
+          </p>
         </div>
+        <button onClick={onDismiss} style={{ border:'none', background:'none', cursor:'pointer',
+          padding:4, color:P.color.ink4, flexShrink:0 }}>
+          <Icon name="close" size={16} color={P.color.ink4}/>
+        </button>
       </div>
     </div>
   );
@@ -5151,13 +5144,14 @@ function App() {
   const [entryType, setEntryType]    = React.useState('existing');
   const [showReflectPopup, setShowReflectPopup] = React.useState(false);
   const [forceReflect, setForceReflect] = React.useState(false);
-  const [showGuidePopup, setShowGuidePopup]     = React.useState(false);
   const [showCelebratePopup, setShowCelebratePopup] = React.useState(false);
   const [showSupportPopup, setShowSupportPopup] = React.useState(false);
-  const [showHomeCoach, setShowHomeCoach] = React.useState(false);
-  const [coachStep, setCoachStep] = React.useState(0);
-  const [coachTapped, setCoachTapped] = React.useState(false);
   const [showBankUnlock, setShowBankUnlock] = React.useState(false);
+  // First-visit hints — exploratory, non-blocking
+  const [seenTabs, setSeenTabs] = React.useState(() => {
+    try { return JSON.parse(localStorage.getItem('penny_seen_tabs') || '[]'); } catch { return []; }
+  });
+  const [currentHint, setCurrentHint] = React.useState(null);
   const [ribbonBurst, setRibbonBurst] = React.useState(false);
   const [celebrateCopy, setCelebrateCopy] = React.useState({
     title:'Great reflection!',
@@ -5170,31 +5164,14 @@ function App() {
     if (screen !== 'home') return;
     if (showCelebratePopup || showSupportPopup) return;
     const reflectedThisSession = sessionStorage.getItem('penny_reflection_session_done') === '1';
-    const guided = localStorage.getItem('penny_first_guide_done') === '1';
-    const coached = localStorage.getItem('penny_main_tabs_coached') === '1';
     const bankLinked = localStorage.getItem('penny_bank_link_done') === '1';
     if (entryType === 'existing' && (forceReflect || !reflectedThisSession)) {
       setShowReflectPopup(true);
       setForceReflect(false);
       return;
     }
-    if (entryType === 'new') {
-      // New-user order: bank link first, then lightweight guided exploration.
-      if (!bankLinked) {
-        setShowBankUnlock(true);
-        setShowGuidePopup(false);
-        setShowHomeCoach(false);
-        return;
-      }
-      if (!guided) {
-        setShowGuidePopup(true);
-        return;
-      }
-      if (!coached) {
-        setCoachStep(0);
-        setCoachTapped(false);
-        setShowHomeCoach(true);
-      }
+    if (entryType === 'new' && !bankLinked) {
+      setShowBankUnlock(true);
     }
   }, [screen, entryType, showCelebratePopup, showSupportPopup]);
 
@@ -5204,13 +5181,18 @@ function App() {
       if (showSupportPopup) { setShowSupportPopup(false); return; }
       if (showCelebratePopup) { setShowCelebratePopup(false); return; }
       if (showReflectPopup) { setShowReflectPopup(false); return; }
-      if (showGuidePopup) { setShowGuidePopup(false); return; }
       if (showBankUnlock) { setShowBankUnlock(false); return; }
-      if (showHomeCoach) { setShowHomeCoach(false); return; }
+      if (currentHint) { setCurrentHint(null); return; }
     };
     window.addEventListener('keydown', onEsc);
     return () => window.removeEventListener('keydown', onEsc);
-  }, [showSupportPopup, showCelebratePopup, showReflectPopup, showGuidePopup, showBankUnlock, showHomeCoach]);
+  }, [showSupportPopup, showCelebratePopup, showReflectPopup, showBankUnlock, currentHint]);
+
+  React.useEffect(() => {
+    if (!currentHint) return;
+    const t = setTimeout(() => setCurrentHint(null), 4000);
+    return () => clearTimeout(t);
+  }, [currentHint]);
 
   React.useEffect(() => {
     if (!ribbonBurst) return;
@@ -5336,8 +5318,14 @@ function App() {
     if (extra?.saveGoalId) setSaveGoalId(extra.saveGoalId);
     if (extra?.entry) setEntryType(extra.entry);
     if (extra?.forceReflect) setForceReflect(true);
-    if (showHomeCoach && MAIN_PAGE_TIPS[coachStep]?.tab === s) {
-      setCoachTapped(true);
+    // Show first-visit hint when exploring a main tab for the first time
+    if (MAIN_TABS.includes(s) && !seenTabs.includes(s)) {
+      setSeenTabs(prev => {
+        const next = [...prev, s];
+        try { localStorage.setItem('penny_seen_tabs', JSON.stringify(next)); } catch {}
+        return next;
+      });
+      setCurrentHint(s);
     }
     applyNavScreen(s, {
       pushHistory: options.pushHistory !== false,
@@ -5437,7 +5425,7 @@ function App() {
     }
   };
 
-  const anyOverlayOpen = showGuidePopup || showReflectPopup || showCelebratePopup || showSupportPopup || showBankUnlock || showHomeCoach;
+  const anyOverlayOpen = showReflectPopup || showCelebratePopup || showSupportPopup || showBankUnlock;
   const indicatorLight = anyOverlayOpen || screen === 'challengeDetail';
 
   return (
@@ -5447,17 +5435,9 @@ function App() {
         style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
         {renderScreen()}
       </div>
-      {MAIN_TABS.includes(screen) && <BottomNav active={tab} onTab={nav}
-        guideTab={showHomeCoach && !showGuidePopup && !showReflectPopup ? MAIN_PAGE_TIPS[coachStep]?.tab : null}/>}
-      <GuidePopup open={showGuidePopup} onClose={() => {
-        setShowGuidePopup(false);
-        localStorage.setItem('penny_first_guide_done', '1');
-        setCelebrateCopy({
-          title:'Great start!',
-          sub:'Penny: "You are all set. Explore freely, and I will stay by your side."',
-        });
-        setShowCelebratePopup(true);
-      }}/>
+      {MAIN_TABS.includes(screen) && <BottomNav active={tab} onTab={nav} guideTab={null}/>}
+      <FirstVisitHint tab={MAIN_TABS.includes(screen) ? currentHint : null}
+        onDismiss={() => setCurrentHint(null)}/>
       <ReflectionPopup open={showReflectPopup} onClose={() => {
         setShowReflectPopup(false);
         sessionStorage.setItem('penny_reflection_session_done', '1');
@@ -5488,33 +5468,6 @@ function App() {
         }}/>
       <RibbonCelebration open={ribbonBurst || showCelebratePopup} />
       <SupportFeedbackPopup open={showSupportPopup} onClose={() => setShowSupportPopup(false)} />
-      <HomeOnboardingBubble
-        open={showHomeCoach && MAIN_TABS.includes(screen) && !showGuidePopup && !showReflectPopup}
-        step={coachStep}
-        canNext={coachTapped}
-        onSkip={() => {
-          setShowHomeCoach(false);
-          localStorage.setItem('penny_main_tabs_coached', '1');
-          if (entryType === 'new' && localStorage.getItem('penny_bank_link_done') !== '1') {
-            setShowBankUnlock(true);
-          }
-        }}
-        onNext={() => {
-          if (!coachTapped) return;
-          if (coachStep >= MAIN_PAGE_TIPS.length - 1) {
-            setShowHomeCoach(false);
-            localStorage.setItem('penny_main_tabs_coached', '1');
-            setCelebrateCopy({
-              title:'You did it!',
-              sub:'Penny: "Now you know every corner of your space. Let\'s build your money calm together."',
-            });
-            setShowCelebratePopup(true);
-            return;
-          }
-          setCoachTapped(false);
-          setCoachStep(s => s + 1);
-        }}
-      />
       <HomeIndicator light={indicatorLight} z={1400} />
     </div>
   );
