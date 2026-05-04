@@ -1224,14 +1224,13 @@ function ScreenHome({ onTab, nav, navCat }) {
 
       {/* Challenge card */}
       <div style={{ margin:'0 24px 20px', borderRadius:P.r.xl, overflow:'hidden',
-        backgroundColor:challenge.color, boxShadow:P.shadow.md, cursor:'pointer' }}
-        onClick={() => nav('challengeDetail')}>
+        backgroundColor:challenge.color, boxShadow:P.shadow.md }}>
         <div style={{ padding:'24px 24px 20px' }}>
           <span style={{ fontFamily:P.font.body, fontSize:10, fontWeight:700,
             color:'rgba(255,255,255,.6)', letterSpacing:1.2, textTransform:'uppercase' }}>
-            Today's Challenge — Tap to view
+            {"Today's Challenge"}
           </span>
-          <div style={{ display:'flex', alignItems:'center', gap:16, margin:'14px 0 12px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:16, margin:'14px 0 0' }}>
             <div style={{ width:56, height:56, borderRadius:P.r.lg,
               backgroundColor:'rgba(255,255,255,.15)', display:'flex',
               alignItems:'center', justifyContent:'center', flexShrink:0 }}>
@@ -1246,16 +1245,13 @@ function ScreenHome({ onTab, nav, navCat }) {
                 margin:0 }}>{challenge.sub}</p>
             </div>
           </div>
-          <div style={{ display:'flex', gap:8 }}>
-            <button onClick={(e)=>{ e.stopPropagation(); nav('challengesList'); }} style={{ flex:1, height:38, borderRadius:P.r.pill,
-              backgroundColor:'rgba(255,255,255,.18)', border:'1.5px solid rgba(255,255,255,.35)',
-              color:P.color.white, fontFamily:P.font.body, fontSize:13, fontWeight:700,
-              cursor:'pointer' }}>Skip</button>
-            <button onClick={(e)=>{ e.stopPropagation(); nav('challengeDetail'); }} style={{ flex:2, height:38, borderRadius:P.r.pill,
-              backgroundColor:P.color.white, border:'none',
-              color:challenge.color, fontFamily:P.font.body, fontSize:13, fontWeight:700,
-              cursor:'pointer' }}>Accept Challenge ✓</button>
-          </div>
+          <button type="button" onClick={() => nav('challengeDetail')}
+            style={{ marginTop:16, width:'100%', height:44, borderRadius:P.r.pill, border:'none',
+              backgroundColor:P.color.white, color:challenge.color,
+              fontFamily:P.font.display, fontWeight:700, fontSize:16, letterSpacing:'-.2px',
+              cursor:'pointer', boxShadow:'0 4px 14px rgba(0,0,0,.14)' }}>
+            View challenge
+          </button>
         </div>
       </div>
 
@@ -2363,7 +2359,7 @@ function ReflectionPopup({ open, onClose, onComplete }) {
   );
 }
 
-function CelebrationPopup({ open, onClose, onNeedSupport, title='You did great!', sub='Self-awareness is your superpower.' }) {
+function CelebrationPopup({ open, onClose, title='You did great!' }) {
   if (!open) return null;
   return (
     <div style={{ position:'absolute', inset:0, zIndex:640 }}>
@@ -2375,46 +2371,10 @@ function CelebrationPopup({ open, onClose, onNeedSupport, title='You did great!'
           display:'flex', alignItems:'center', justifyContent:'center' }}>
           <PigMascot size={84} style={{ animation:'pigFloat2 2.2s ease-in-out infinite' }}/>
         </div>
-        <h3 style={{ margin:'0 0 6px', fontFamily:P.font.display, fontWeight:700, fontSize:32, color:P.color.black }}>{title}</h3>
-        <p style={{ margin:'0 0 14px', fontFamily:P.font.body, fontSize:13, color:P.color.ink2, lineHeight:1.55 }}>{sub}</p>
-        <div style={{ display:'flex', gap:8 }}>
-          <button onClick={onClose} style={{ flex:1, height:44, border:'none', borderRadius:22, backgroundColor:P.color.green, color:P.color.white, cursor:'pointer', fontFamily:P.font.body, fontWeight:700 }}>
-            Love this
-          </button>
-          <button onClick={onNeedSupport || onClose} style={{ flex:1, height:44, border:'none', borderRadius:22, backgroundColor:P.color.stone, color:P.color.black, cursor:'pointer', fontFamily:P.font.body, fontWeight:700 }}>
-            Need support
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SupportFeedbackPopup({ open, onClose }) {
-  const [note, setNote] = React.useState('');
-  React.useEffect(() => { if (open) setNote(''); }, [open]);
-  if (!open) return null;
-  return (
-    <div style={{ position:'absolute', inset:0, zIndex:650 }}>
-      <div style={{ position:'absolute', inset:0, backgroundColor:'rgba(20,20,20,.46)', backdropFilter:'blur(3px)' }}/>
-      <div style={{ position:'absolute', left:20, right:20, top:'50%', transform:'translateY(-50%)',
-        backgroundColor:P.color.white, borderRadius:24, padding:'16px', boxShadow:P.shadow.lg,
-        animation:'popupCardIn .3s cubic-bezier(.22,1,.36,1) both' }}>
-        <p style={{ margin:'0 0 4px', fontFamily:P.font.display, fontWeight:700, fontSize:28 }}>Penny is here for you</p>
-        <p style={{ margin:'0 0 10px', fontFamily:P.font.body, fontSize:13, color:P.color.ink2, lineHeight:1.55 }}>
-          Tell me what felt hard. I&apos;ll tune your reminders and suggestions to be more supportive.
-        </p>
-        <textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Example: late-night food delivery is hardest for me..."
-          style={{ width:'100%', height:96, resize:'none', border:`1px solid ${P.color.border}`, borderRadius:12, padding:'10px 12px',
-            boxSizing:'border-box', fontFamily:P.font.body, fontSize:13, color:P.color.black, outline:'none' }}/>
-        <div style={{ marginTop:10, display:'flex', gap:8 }}>
-          <button onClick={onClose} style={{ flex:1, height:42, border:'none', borderRadius:21, backgroundColor:P.color.green, color:P.color.white, cursor:'pointer', fontFamily:P.font.body, fontWeight:700 }}>
-            Send feedback
-          </button>
-          <button onClick={onClose} style={{ flex:1, height:42, border:'none', borderRadius:21, backgroundColor:P.color.stone, color:P.color.black, cursor:'pointer', fontFamily:P.font.body, fontWeight:700 }}>
-            Maybe later
-          </button>
-        </div>
+        <h3 style={{ margin:'0 0 16px', fontFamily:P.font.display, fontWeight:700, fontSize:32, color:P.color.black }}>{title}</h3>
+        <button type="button" onClick={onClose} style={{ width:'100%', height:44, border:'none', borderRadius:22, backgroundColor:P.color.green, color:P.color.white, cursor:'pointer', fontFamily:P.font.body, fontWeight:700, fontSize:15 }}>
+          Continue
+        </button>
       </div>
     </div>
   );
@@ -2578,40 +2538,105 @@ function BankUnlockPopup({ open, onClose, onConnected }) {
 }
 
 // ─── FIRST-VISIT HINT ────────────────────────────────────────────
-// Non-blocking: appears when user visits a tab for the first time,
-// auto-dismisses in 4s, no overlay, no forced order.
+// Non-blocking: appears when user visits a tab for the first time.
+// Card format only (no internal scroll), then auto-dismisses.
 const TAB_HINTS = {
-  home:     { title:'Your daily pulse', sub:'Today\'s challenge and spending focus are right here.' },
-  spending: { title:'Where money goes', sub:'See categories, alignment tags, and monthly trends.' },
-  goals:    { title:'Goals & routines', sub:'Build savings habits that match your priorities.' },
-  profile:  { title:'Your Penny profile', sub:'Priorities, streaks, and personal settings.' },
+  home: {
+    title: 'Home Overview',
+    lead: 'Your daily command center for challenge status and spending focus.',
+    items: [
+      { icon:'check', title:'Challenge progress', detail:'Bank-linked updates and daily reward path.' },
+      { icon:'filter', title:'Spending focus', detail:'See what is left by category and where to adjust.' },
+      { icon:'bell',  title:'Smart nudges', detail:'Important reminders and wins in one place.' },
+    ],
+  },
+  spending: {
+    title: 'Spending Overview',
+    lead: 'Read patterns quickly before they become costly habits.',
+    items: [
+      { icon:'filter', title:'Category clarity', detail:'Track spend vs budget with alignment tags.' },
+      { icon:'arrowUp', title:'Trend context', detail:'Understand monthly shifts and repeat behavior.' },
+      { icon:'settings', title:'Action controls', detail:'Log, review, and tune your spending plan.' },
+    ],
+  },
+  goals: {
+    title: 'Goals Overview',
+    lead: 'Build routines and savings targets that match your priorities.',
+    items: [
+      { icon:'check', title:'Routine caps', detail:'Define practical limits by category and period.' },
+      { icon:'star', title:'Saving targets', detail:'Set personal goal amount and current progress.' },
+      { icon:'settings', title:'Rebalance support', detail:'Penny helps trade lower priorities when needed.' },
+    ],
+  },
+  profile: {
+    title: 'Profile Overview',
+    lead: 'Manage your setup, milestones, and personal preferences.',
+    items: [
+      { icon:'star', title:'Achievement view', detail:'Monitor streaks and completed milestones.' },
+      { icon:'settings', title:'Preference control', detail:'Update settings as your life changes.' },
+      { icon:'user', title:'Identity & context', detail:'Keep your financial profile up to date.' },
+    ],
+  },
 };
 
 function FirstVisitHint({ tab, onDismiss }) {
   if (!tab || !TAB_HINTS[tab]) return null;
   const hint = TAB_HINTS[tab];
+  const items = hint.items || [];
   return (
-    <div style={{ position:'absolute', left:16, right:16, bottom:92, zIndex:610, pointerEvents:'none' }}>
+    <div style={{ position:'absolute', left:14, right:14, bottom:86, zIndex:610, pointerEvents:'none' }}>
       <div style={{ pointerEvents:'auto', backgroundColor:P.color.white,
-        borderRadius:16, boxShadow:'0 4px 24px rgba(0,0,0,.12)',
-        border:`1px solid ${P.color.border}`, padding:'10px 12px',
-        display:'flex', alignItems:'center', gap:10,
+        borderRadius:22, boxShadow:'0 10px 36px rgba(0,0,0,.13)',
+        border:`1px solid ${P.color.border}`, padding:'16px 14px 14px',
         animation:'fadeSlideUp .22s ease both' }}>
-        <div style={{ width:28, height:28, borderRadius:'50%', backgroundColor:P.color.pinkLight,
-          display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-          <PigMascot size={26}/>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, minWidth:0 }}>
+            <div style={{ width:40, height:40, borderRadius:'50%', backgroundColor:P.color.pinkLight,
+              display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <PigMascot size={34}/>
+            </div>
+            <p style={{ margin:0, fontFamily:P.font.display, fontWeight:700, fontSize:22,
+              color:P.color.black, letterSpacing:'-.2px', lineHeight:1.05 }}>
+              {hint.title}
+            </p>
+          </div>
+          <button type="button" onClick={onDismiss} aria-label="Dismiss hint"
+            style={{ border:'none', background:'none', cursor:'pointer',
+              padding:2, marginTop:-2, marginRight:-2, color:P.color.ink4, flexShrink:0 }}>
+            <Icon name="close" size={18} color={P.color.ink4}/>
+          </button>
         </div>
-        <div style={{ flex:1 }}>
-          <p style={{ margin:0, fontFamily:P.font.body, fontWeight:700, fontSize:13, color:P.color.black }}>
-            {hint.title}
-          </p>
-          <p style={{ margin:'2px 0 0', fontFamily:P.font.body, fontSize:12, color:P.color.ink3, lineHeight:1.4 }}>
-            {hint.sub}
-          </p>
+
+        <p style={{ margin:'10px 2px 0', fontFamily:P.font.body, fontSize:12, fontWeight:600,
+          color:P.color.ink2, lineHeight:1.5 }}>
+          {hint.lead}
+        </p>
+
+        <div style={{ marginTop:10, display:'grid', gap:8 }}>
+          {items.map((item, i) => (
+            <div key={i} style={{ backgroundColor:P.color.stone, borderRadius:12, padding:'9px 10px',
+              display:'flex', alignItems:'flex-start', gap:8 }}>
+              <div style={{ width:24, height:24, borderRadius:'50%', backgroundColor:P.color.white,
+                display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <Icon name={item.icon} size={12} color={P.color.green}/>
+              </div>
+              <div style={{ minWidth:0 }}>
+                <p style={{ margin:0, fontFamily:P.font.body, fontWeight:700, fontSize:12.5, color:P.color.black }}>
+                  {item.title}
+                </p>
+                <p style={{ margin:'1px 0 0', fontFamily:P.font.body, fontSize:11.5, color:P.color.ink3, lineHeight:1.4 }}>
+                  {item.detail}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
-        <button onClick={onDismiss} style={{ border:'none', background:'none', cursor:'pointer',
-          padding:4, color:P.color.ink4, flexShrink:0 }}>
-          <Icon name="close" size={16} color={P.color.ink4}/>
+
+        <button type="button" onClick={onDismiss}
+          style={{ marginTop:10, width:'100%', height:38, border:'none',
+            borderRadius:19, backgroundColor:P.color.green, cursor:'pointer',
+            fontFamily:P.font.body, fontWeight:700, fontSize:13, color:P.color.white }}>
+          Got it
         </button>
       </div>
     </div>
@@ -3518,19 +3543,22 @@ function SpiralBoard({ streak, currentDay, W=320, H=380 }) {
 }
 
 function ScreenChallengeDetailV2({ nav }) {
-  const [accepted, setAccepted] = React.useState(false);
-  const [skipped, setSkipped] = React.useState(false);
   const [showReward, setShowReward] = React.useState(false);
-  const done = 3;
+  const challenge = CHALLENGES[0];
+  const seriesLen = CHALLENGES.length;
+  const dayNum = challenge.day;
+  const daysDone = Math.max(0, dayNum - 1);
+  const daysLeft = Math.max(0, seriesLen - dayNum);
   const totalPts = 55;
-  const totalDays = 7;
+  const seriesPct = Math.min(100, Math.round(((Math.max(0, dayNum - 1)) / seriesLen) * 100));
+  const unlocked = dayNum >= seriesLen && seriesLen > 0;
 
   return (
     <div style={{ flex:1, backgroundColor:P.color.white, display:'flex',
       flexDirection:'column', position:'relative', overflow:'hidden' }}>
       <StatusBar light />
       <div style={{ position:'relative', height:190, flexShrink:0,
-        background:`linear-gradient(160deg,${P.color.green} 0%,#1a6b3c 100%)` }}>
+        backgroundColor:challenge.color }}>
         <div style={{ position:'absolute', inset:0, opacity:.08,
           backgroundImage:'repeating-linear-gradient(45deg,white 0,white 1px,transparent 0,transparent 50%)',
           backgroundSize:'18px 18px' }}/>
@@ -3540,18 +3568,22 @@ function ScreenChallengeDetailV2({ nav }) {
           <div>
             <span style={{ fontFamily:P.font.body, fontSize:10, fontWeight:700,
               color:'rgba(255,255,255,.6)', textTransform:'uppercase', letterSpacing:1.2 }}>
-              Day {done} of {totalDays}
+              Day {dayNum} of {seriesLen}
             </span>
             <h1 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:24,
               color:P.color.white, margin:'4px 0 4px', letterSpacing:'-.4px', lineHeight:1.1 }}>
-              No-Spend Challenge
+              {challenge.title}
             </h1>
             <p style={{ fontFamily:P.font.body, fontSize:12,
               color:'rgba(255,255,255,.75)', margin:0 }}>
-              Zero non-essential purchases for 7 days
+              {challenge.sub}
             </p>
           </div>
-          <PigMascot size={72} style={{ flexShrink:0 }} onDark />
+          <div style={{ width:72, height:72, borderRadius:P.r.lg,
+            backgroundColor:'rgba(255,255,255,.15)', display:'flex', alignItems:'center',
+            justifyContent:'center', flexShrink:0 }}>
+            <Icon name={CAT_META[challenge.cat]?.icon||'coffee'} size={34} color="white" />
+          </div>
         </div>
       </div>
 
@@ -3559,9 +3591,9 @@ function ScreenChallengeDetailV2({ nav }) {
         {/* Stats */}
         <div style={{ display:'flex', gap:10, padding:'14px 20px 0' }}>
           {[
-            {label:'Days Done', value:done,       icon:'check', c:P.color.green  },
+            {label:'Days Done', value:daysDone,   icon:'check', c:P.color.green  },
             {label:'Points',    value:totalPts,   icon:'star',  c:P.color.neutral},
-            {label:'Days Left', value:totalDays-done,icon:'bell',c:P.color.ink3  },
+            {label:'Days Left', value:daysLeft,   icon:'bell', c:P.color.ink3  },
           ].map(s=>(
             <div key={s.label} style={{ flex:1, backgroundColor:P.color.white,
               borderRadius:P.r.lg, padding:'12px 8px', textAlign:'center', boxShadow:P.shadow.sm }}>
@@ -3593,41 +3625,24 @@ function ScreenChallengeDetailV2({ nav }) {
           />
         </div>
 
-        {/* Today's action */}
+        {/* Today's status — verified from linked accounts */}
         <div style={{ margin:'12px 20px 0', backgroundColor:P.color.white,
           borderRadius:P.r.xl, padding:'18px', boxShadow:P.shadow.sm }}>
-          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
+          <div style={{ display:'flex', alignItems:'flex-start', gap:12 }}>
             <div style={{ width:48, height:48, borderRadius:P.r.lg, backgroundColor:P.color.pinkLight,
               display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-              <PigMascot size={42} />
+              <Icon name={CAT_META[challenge.cat]?.icon||'coffee'} size={22} color={P.color.green} />
             </div>
-            <div>
+            <div style={{ flex:1 }}>
               <p style={{ fontFamily:P.font.display, fontWeight:700, fontSize:15,
-                color:P.color.black, margin:'0 0 2px' }}>
-                {accepted ? "Great job! Day logged ✓" : "Complete today's challenge"}
+                color:P.color.black, margin:'0 0 4px' }}>
+                {"Today's goal"}
               </p>
-              <p style={{ fontFamily:P.font.body, fontSize:12, color:P.color.ink3, margin:0 }}>
-                {accepted ? `+10 pts · ${done+1} days done` : 'No non-essential spending today'}
+              <p style={{ fontFamily:P.font.body, fontSize:12, color:P.color.ink3, margin:0, lineHeight:1.45 }}>
+                With your bank accounts linked, Penny marks each day from real transactions when they sync—no Skip or Complete.
               </p>
             </div>
           </div>
-          {!accepted ? (
-            <div style={{ display:'flex', gap:10 }}>
-              <PBtn label="Skip" variant="secondary" style={{height:42,fontSize:14}} onClick={()=>{ setSkipped(true); setAccepted(false); }}/>
-              <PBtn label="Complete ✓" style={{height:42,fontSize:14}} onClick={()=>{ setAccepted(true); setSkipped(false); }}/>
-            </div>
-          ) : (
-            <div style={{ backgroundColor:P.color.greenLight, borderRadius:P.r.md,
-              padding:'10px', textAlign:'center' }}>
-              <p style={{ fontFamily:P.font.body, fontWeight:700, fontSize:13,
-                color:P.color.green, margin:0 }}>See you tomorrow! 🐷</p>
-            </div>
-          )}
-          {!accepted && skipped && (
-            <p style={{ margin:'8px 2px 0', fontFamily:P.font.body, fontSize:11, color:P.color.ink3 }}>
-              Skipped today. Penny will nudge you again tomorrow.
-            </p>
-          )}
         </div>
 
         {/* Reward ticket */}
@@ -3638,7 +3653,7 @@ function ScreenChallengeDetailV2({ nav }) {
             <div style={{ flex:1, padding:'18px 18px' }}>
               <span style={{ fontFamily:P.font.body, fontSize:9, fontWeight:700,
                 color:P.color.ink3, textTransform:'uppercase', letterSpacing:1,
-                display:'block', marginBottom:4 }}>Complete 7 days</span>
+                display:'block', marginBottom:4 }}>Complete {seriesLen} days</span>
               <h3 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:22,
                 color:P.color.black, margin:'0 0 6px', lineHeight:1.1 }}>
                 Broadway Show
@@ -3660,13 +3675,13 @@ function ScreenChallengeDetailV2({ nav }) {
             <div style={{ width:68, display:'flex', flexDirection:'column',
               alignItems:'center', justifyContent:'center', gap:6, padding:'16px 8px' }}>
               <div style={{ width:28, height:28, borderRadius:'50%',
-                backgroundColor:done>=7?P.color.green:'rgba(255,255,255,.5)',
+                backgroundColor:unlocked?P.color.green:'rgba(255,255,255,.5)',
                 display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <Icon name={done>=7?'check':'lock'} size={13}
-                  color={done>=7?P.color.white:P.color.ink4}/>
+                <Icon name={unlocked?'check':'lock'} size={13}
+                  color={unlocked?P.color.white:P.color.ink4}/>
               </div>
               <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:13,
-                color:P.color.ink2 }}>{Math.round((done/7)*100)}%</span>
+                color:P.color.ink2 }}>{seriesPct}%</span>
             </div>
           </div>
         </div>
@@ -3683,13 +3698,13 @@ function ScreenChallengeDetailV2({ nav }) {
           <h2 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:22,
             color:P.color.black, margin:'0 0 6px' }}>Broadway Show 🎭</h2>
           <p style={{ fontFamily:P.font.body, fontSize:13, color:P.color.ink3, margin:'0 0 8px' }}>
-            Complete 7 days to unlock
+            Complete {seriesLen} days to unlock
           </p>
           <p style={{ fontFamily:P.font.display, fontWeight:700, fontSize:18,
-            color:P.color.green, margin:'0 0 16px' }}>{done}/7 days</p>
-          <ProgressBar value={done} max={7} color={P.color.green}/>
+            color:P.color.green, margin:'0 0 16px' }}>{Math.min(seriesLen, dayNum)}/{seriesLen} days</p>
+          <ProgressBar value={Math.min(seriesLen, dayNum)} max={seriesLen} color={P.color.green}/>
           <p style={{ fontFamily:P.font.body, fontSize:12, color:P.color.ink3, margin:'8px 0 16px' }}>
-            {7-done} days remaining
+            {Math.max(0, seriesLen - dayNum)} days remaining
           </p>
           <PBtn label="Keep Going!" onClick={()=>setShowReward(false)}/>
         </div>
@@ -4109,15 +4124,17 @@ const NYC_ROUTINE_RECO = {
 
 function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
   const defaultReco = NYC_ROUTINE_RECO.train;
+  const defaultRoutineTotal = String(Math.max(1, Math.round(defaultReco.avg * defaultReco.freq)));
   const [form, setForm] = React.useState({
     name: mode==='routine' ? 'Commute' : 'Emergency Fund',
     cat: mode==='routine' ? 'train' : 'travel',
-    amount: mode==='routine' ? String(defaultReco.avg) : '6000',
+    amount: mode==='routine' ? defaultRoutineTotal : '6000',
     current: mode==='save' ? '300' : '0',
     plan: 'Weekly',
     routineInputMode:'avg',
     avgInput:String(defaultReco.avg),
     freqInput:String(defaultReco.freq),
+    totalBudgetInput: defaultRoutineTotal,
   });
   const set = k => v => setForm(f => ({ ...f, [k]: v }));
   const quickCats = ['dineOut','train','rideshare','onlineShopping','foodDelivery','wellness','streaming','household','drink','hangout','dress'];
@@ -4125,18 +4142,22 @@ function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
   const numericRoutineInput = form.routineInputMode === 'avg'
     ? (parseInt(form.avgInput, 10) || 0)
     : (parseInt(form.freqInput, 10) || 0);
+  const totalBudgetNum = parseInt(form.totalBudgetInput, 10) || 0;
+  const planPeriodWord = form.plan === 'Daily' ? 'day' : form.plan === 'Monthly' ? 'month' : 'week';
   const canCreate = mode==='routine'
-    ? (form.name.trim() && numericRoutineInput > 0)
+    ? (form.name.trim() && numericRoutineInput > 0 && totalBudgetNum > 0)
     : (form.name.trim() && parseInt(form.amount,10) > 0);
 
   const switchCat = (id) => {
     const nextReco = NYC_ROUTINE_RECO[id] || { avg:35, freq:3 };
+    const nextTotal = String(Math.max(1, Math.round(nextReco.avg * nextReco.freq)));
     setForm(f => ({
       ...f,
       cat:id,
       avgInput:String(nextReco.avg),
       freqInput:String(nextReco.freq),
-      amount:String(nextReco.avg),
+      amount:nextTotal,
+      totalBudgetInput:nextTotal,
     }));
   };
 
@@ -4146,9 +4167,11 @@ function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
       const avgValue = form.routineInputMode === 'avg'
         ? Math.max(1, parseInt(form.avgInput, 10) || 0)
         : Math.max(1, Math.round((parseInt(form.freqInput, 10) || 0) * reco.avg));
+      const cap = Math.max(1, totalBudgetNum);
       onCreateGoal({
         ...form,
-        amount:String(avgValue),
+        amount:String(cap),
+        avgPerSpend: avgValue,
       });
       return;
     }
@@ -4223,16 +4246,32 @@ function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
             </div>
             <p style={{ margin:'8px 0 0', fontFamily:P.font.body, fontSize:11, color:P.color.ink3 }}>
               NYC recommendation: ${reco.avg} per spend · {reco.freq} times/week
+              {' · '}suggested total ${Math.round(reco.avg * reco.freq)}
             </p>
+            <div style={{ height:1, backgroundColor:P.color.border, margin:'14px 0 12px', opacity:.6 }}/>
+            <p style={{ margin:'0 0 6px', fontFamily:P.font.body, fontSize:12, fontWeight:700, color:P.color.ink3, textTransform:'uppercase', letterSpacing:.6 }}>
+              Overall budget ({form.plan})
+            </p>
+            <p style={{ margin:'0 0 10px', fontFamily:P.font.body, fontSize:12, color:P.color.ink3, lineHeight:1.35 }}>
+              Total dollar cap per {planPeriodWord} for this routine. Penny uses this when rebalancing your budget.
+            </p>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:12 }}>
+              <div style={{ backgroundColor:P.color.stone, borderRadius:P.r.pill, padding:'8px 12px', display:'flex', alignItems:'center', gap:4 }}>
+                <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:24 }}>$</span>
+                <input type="number" min="1" step="1" value={form.totalBudgetInput}
+                  onChange={e=>set('totalBudgetInput')(e.target.value)}
+                  style={{ width:88, border:'none', borderBottom:`1px solid ${P.color.black}`, background:'transparent', textAlign:'right', fontFamily:P.font.display, fontWeight:700, fontSize:24, outline:'none' }}/>
+              </div>
+            </div>
           </div>
         ) : (
           <div style={{ marginTop:14, backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'14px 16px', boxShadow:P.shadow.sm }}>
             <p style={{ margin:'0 0 8px', fontFamily:P.font.body, fontSize:12, fontWeight:700, color:P.color.ink3, textTransform:'uppercase', letterSpacing:.6 }}>
-              Target Amount
+              Overall goal ($)
             </p>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
               <p style={{ margin:0, fontFamily:P.font.body, fontSize:12, color:P.color.ink3, maxWidth:190 }}>
-                Set how much you want to save.
+                Total amount you're saving toward — required so Penny can adjust your budget pacing.
               </p>
               <div style={{ backgroundColor:P.color.stone, borderRadius:P.r.pill, padding:'8px 12px', display:'flex', alignItems:'center', gap:4 }}>
                 <span style={{ fontFamily:P.font.display, fontWeight:700, fontSize:24 }}>$</span>
@@ -4254,6 +4293,7 @@ function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
           </div>
         )}
 
+        {mode === 'routine' && (
         <div style={{ marginTop:12, backgroundColor:P.color.white, borderRadius:P.r.lg, padding:'14px 16px', boxShadow:P.shadow.sm }}>
           <p style={{ margin:'0 0 8px', fontFamily:P.font.body, fontSize:12, fontWeight:700, color:P.color.ink3, textTransform:'uppercase', letterSpacing:.6 }}>Frequency</p>
           <div style={{ display:'flex', gap:8 }}>
@@ -4268,6 +4308,7 @@ function ScreenGoalBuilder({ nav, mode='routine', onCreateGoal }) {
             ))}
           </div>
         </div>
+        )}
 
         <button onClick={submit}
           style={{ marginTop:18, width:'100%', height:52, border:'none', borderRadius:26, backgroundColor:canCreate ? P.color.green : P.color.ink4, color:P.color.white, fontFamily:P.font.display, fontWeight:700, fontSize:22, cursor:canCreate?'pointer':'not-allowed' }}>
@@ -4314,7 +4355,7 @@ function ScreenGoalBuilderSuccess({ nav, mode='routine', createdGoal }) {
           </div>
           <h2 style={{ margin:'16px 0 10px', textAlign:'center', fontFamily:P.font.display, fontWeight:700, fontSize:34 }}>{title}</h2>
           <div style={{ margin:'0 16px 12px', backgroundColor:P.color.stone, borderRadius:P.r.md, padding:'14px 16px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-            <p style={{ margin:0, fontFamily:P.font.body, fontWeight:700, fontSize:14 }}>{mode==='save' ? 'Target' : 'Ideal Spent'}</p>
+            <p style={{ margin:0, fontFamily:P.font.body, fontWeight:700, fontSize:14 }}>{mode==='save' ? 'Overall goal' : 'Overall budget'}</p>
             <p style={{ margin:0, fontFamily:P.font.display, fontWeight:700, fontSize:30 }}>${Number(amount||0).toLocaleString()}</p>
           </div>
           <p style={{ margin:'0 0 18px', textAlign:'center', fontFamily:P.font.body, fontWeight:700, fontSize:14, color:P.color.ink2 }}>
@@ -4410,7 +4451,7 @@ function ScreenSavingGoalDetail({ nav, goal, onAddSaved }) {
           <button onClick={() => setManualLogOpen(true)}
             style={{ marginTop:10, width:'100%', height:34, borderRadius:999, border:`1px solid ${P.color.border}`,
               backgroundColor:P.color.white, cursor:'pointer', fontFamily:P.font.body, fontWeight:700, fontSize:12, color:P.color.ink2 }}>
-            Manual Input · Log Dine Out
+            Manual Input
           </button>
           {manualSaved && (
             <p style={{ margin:'8px 2px 0', fontFamily:P.font.body, fontSize:11, color:P.color.green, fontWeight:700 }}>
@@ -5092,7 +5133,6 @@ function App() {
   const [showReflectPopup, setShowReflectPopup] = React.useState(false);
   const [forceReflect, setForceReflect] = React.useState(false);
   const [showCelebratePopup, setShowCelebratePopup] = React.useState(false);
-  const [showSupportPopup, setShowSupportPopup] = React.useState(false);
   const [showBankUnlock, setShowBankUnlock] = React.useState(false);
   // First-visit hints — exploratory, non-blocking
   const [seenTabs, setSeenTabs] = React.useState(() => {
@@ -5100,16 +5140,13 @@ function App() {
   });
   const [currentHint, setCurrentHint] = React.useState(null);
   const [ribbonBurst, setRibbonBurst] = React.useState(false);
-  const [celebrateCopy, setCelebrateCopy] = React.useState({
-    title:'Great reflection!',
-    sub:'Penny is proud of you. Your feedback helps us support your next better choice.',
-  });
+  const [celebrateCopy, setCelebrateCopy] = React.useState({ title:'Great reflection!' });
 
   React.useEffect(()=>{ try{localStorage.setItem('penny_v2_screen',screen);}catch{} },[screen]);
 
   React.useEffect(() => {
     if (screen !== 'home') return;
-    if (showCelebratePopup || showSupportPopup) return;
+    if (showCelebratePopup) return;
     const reflectedThisSession = sessionStorage.getItem('penny_reflection_session_done') === '1';
     const bankLinked = localStorage.getItem('penny_bank_link_done') === '1';
     if (entryType === 'existing' && (forceReflect || !reflectedThisSession)) {
@@ -5120,12 +5157,11 @@ function App() {
     if (entryType === 'new' && !bankLinked) {
       setShowBankUnlock(true);
     }
-  }, [screen, entryType, showCelebratePopup, showSupportPopup]);
+  }, [screen, entryType, showCelebratePopup]);
 
   React.useEffect(() => {
     const onEsc = (e) => {
       if (e.key !== 'Escape') return;
-      if (showSupportPopup) { setShowSupportPopup(false); return; }
       if (showCelebratePopup) { setShowCelebratePopup(false); return; }
       if (showReflectPopup) { setShowReflectPopup(false); return; }
       if (showBankUnlock) { setShowBankUnlock(false); return; }
@@ -5133,11 +5169,11 @@ function App() {
     };
     window.addEventListener('keydown', onEsc);
     return () => window.removeEventListener('keydown', onEsc);
-  }, [showSupportPopup, showCelebratePopup, showReflectPopup, showBankUnlock, currentHint]);
+  }, [showCelebratePopup, showReflectPopup, showBankUnlock, currentHint]);
 
   React.useEffect(() => {
     if (!currentHint) return;
-    const t = setTimeout(() => setCurrentHint(null), 4000);
+    const t = setTimeout(() => setCurrentHint(null), 20000);
     return () => clearTimeout(t);
   }, [currentHint]);
 
@@ -5310,7 +5346,10 @@ function App() {
     setSaveGoals(next);
     setSaveGoalId(entry.id);
     setCreatedGoal(entry);
-    nav('goalBuilderSuccess', { mode:'save', saveGoalId: entry.id });
+    setCelebrateCopy({ title: `${entry.name.trim() || 'Goal'} saved!` });
+    setRibbonBurst(true);
+    setShowCelebratePopup(true);
+    nav('goals', {}, { replaceHistory: true });
   };
 
   const handleSaveAdjustment = (payload) => {
@@ -5320,10 +5359,7 @@ function App() {
       if (payload.createdGoal) setCreatedGoal(payload.createdGoal);
       setPendingRoutine(null);
       setRibbonBurst(true);
-      setCelebrateCopy({
-        title:'Routine Updated!',
-        sub:'Penny: "You traded lower-priority spend and made room for what matters most."',
-      });
+      setCelebrateCopy({ title:'Routine updated!' });
       setShowCelebratePopup(true);
       return;
     }
@@ -5372,7 +5408,7 @@ function App() {
     }
   };
 
-  const anyOverlayOpen = showReflectPopup || showCelebratePopup || showSupportPopup || showBankUnlock;
+  const anyOverlayOpen = showReflectPopup || showCelebratePopup || showBankUnlock;
   const indicatorLight = anyOverlayOpen || screen === 'challengeDetail';
 
   return (
@@ -5391,30 +5427,21 @@ function App() {
       }}
         onComplete={() => {
           sessionStorage.setItem('penny_reflection_session_done', '1');
-          setCelebrateCopy({
-            title:'Great reflection!',
-            sub:'Penny is proud of you. Your feedback helps us support your next better choice.',
-          });
+          setCelebrateCopy({ title:'Great reflection!' });
           setShowCelebratePopup(true);
         }}/>
       <CelebrationPopup open={showCelebratePopup} onClose={() => setShowCelebratePopup(false)}
-        onNeedSupport={() => { setShowCelebratePopup(false); setShowSupportPopup(true); }}
-        title={celebrateCopy.title}
-        sub={celebrateCopy.sub}/>
+        title={celebrateCopy.title}/>
       <BankUnlockPopup open={showBankUnlock && screen==='home' && !showReflectPopup}
         onClose={() => setShowBankUnlock(false)}
         onConnected={() => {
           localStorage.setItem('penny_bank_link_done', '1');
           setShowBankUnlock(false);
-          setCelebrateCopy({
-            title:'Bank Sync Unlocked!',
-            sub:'Your priority insights are now protected and live. Great job building a stronger money system.',
-          });
+          setCelebrateCopy({ title:'Bank sync unlocked!' });
           setRibbonBurst(true);
           setShowCelebratePopup(true);
         }}/>
       <RibbonCelebration open={ribbonBurst || showCelebratePopup} />
-      <SupportFeedbackPopup open={showSupportPopup} onClose={() => setShowSupportPopup(false)} />
       <HomeIndicator light={indicatorLight} z={1400} />
     </div>
   );
