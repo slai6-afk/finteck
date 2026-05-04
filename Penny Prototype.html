@@ -254,6 +254,11 @@ const ICON_PATHS = {
   trash:     <><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6m4-6v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></>,
   award:     <><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></>,
   gift:      <><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></>,
+  skincare:  <><path d="M9 2h6v3l1.5 2.5A4 4 0 0117 9.7V20a2 2 0 01-2 2H9a2 2 0 01-2-2V9.7a4 4 0 01.5-2.2L9 5V2z"/><line x1="9" y1="13" x2="15" y2="13"/></>,
+  sofa:      <><path d="M3 13v3a2 2 0 002 2h14a2 2 0 002-2v-3"/><path d="M3 13a2 2 0 012-2h0a2 2 0 012 2v2h10v-2a2 2 0 012-2h0a2 2 0 012 2"/><path d="M7 11V8a3 3 0 013-3h4a3 3 0 013 3v3"/><line x1="6" y1="18" x2="6" y2="20"/><line x1="18" y1="18" x2="18" y2="20"/></>,
+  laptop:    <><rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M2 19h20"/><line x1="10" y1="19" x2="14" y2="19"/></>,
+  iphone:    <><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="11" y1="18.5" x2="13" y2="18.5"/><line x1="10.5" y1="4.5" x2="13.5" y2="4.5"/></>,
+  speaker:   <><rect x="6" y="3" width="12" height="18" rx="2"/><circle cx="12" cy="14" r="3"/><circle cx="12" cy="7" r="1"/></>,
 };
 
 function Icon({ name, size=22, color='currentColor', strokeWidth=2 }) {
@@ -3890,50 +3895,40 @@ function WishBottle({ items, onAddWish, onItemClick }) {
     <div style={{ position:'relative', borderRadius:P.r.xl,
       overflow:'hidden', backgroundColor:P.color.stone,
       boxShadow:P.shadow.sm }}>
-      <svg width="100%" height="190" viewBox="0 0 320 190"
-        style={{ display:'block', width:'100%' }}>
-        {/* Bottle fill — liquid level */}
-        <rect x="0" y="80" width="320" height="110"
-          fill={P.color.sandLight} rx="0"/>
-        {/* Animated bubbles */}
+      <svg width="100%" height="190" viewBox="0 0 320 190" preserveAspectRatio="none"
+        style={{ display:'block', width:'100%', position:'absolute', inset:0 }}>
+        <rect x="0" y="80" width="320" height="110" fill={P.color.sandLight} rx="0"/>
         {BOTTLE_BUBBLES.map((b,i)=>(
           <circle key={i} cx={b.cx} cy={b.cy} r={b.r}
             fill={P.color.white} opacity=".85"
             style={{ animation:`${b.anim} ${b.dur} ease-in-out ${b.del} infinite` }}/>
         ))}
-        {/* Bottle top highlight */}
-        <rect x="0" y="0" width="320" height="82"
-          fill={P.color.stone} rx="0"/>
-        {/* Waterline wave */}
+        <rect x="0" y="0" width="320" height="82" fill={P.color.stone} rx="0"/>
         <path d="M0 82 Q40 72 80 82 Q120 92 160 82 Q200 72 240 82 Q280 92 320 82 L320 88 Q280 98 240 88 Q200 78 160 88 Q120 98 80 88 Q40 78 0 88 Z"
           fill={P.color.sand} opacity=".6"/>
-        {/* Save goal bubbles — sized by completion % */}
-        {visibleItems.map((w,i)=>{
-          const pct = Math.max(0, Math.min(1, (w.saved||0) / Math.max(w.goal||1, 1)));
-          const br = 14 + pct*18;
-          const step = visibleItems.length > 1 ? 220 / (visibleItems.length - 1) : 0;
-          const bx = 50 + i * step;
-          const by = 105 + (1-pct)*30;
-          return (
-            <g key={w.id}
-              onClick={() => onItemClick && onItemClick(w)}
-              style={{ cursor:onItemClick?'pointer':'default' }}>
-              <circle cx={bx} cy={by} r={br}
-                fill="white" opacity=".9"
-                stroke={P.color.sand} strokeWidth="1.5"/>
-              <text x={bx} y={by-4} textAnchor="middle"
-                fontFamily={P.font.ui} fontSize="8" fontWeight="700"
-                fill={P.color.ink3}>
-                {Math.round(pct*100)}%
-              </text>
-              <text x={bx} y={by+7} textAnchor="middle"
-                fontFamily={P.font.body} fontSize="7" fill={P.color.ink3}>
-                {(w.label || '').split(' ')[0]}
-              </text>
-            </g>
-          );
-        })}
       </svg>
+      <div style={{ position:'relative', height:190, display:'flex',
+        alignItems:'center', justifyContent:'space-around',
+        padding:'0 10px', zIndex:1 }}>
+        {visibleItems.map((w) => (
+          <button key={w.id}
+            onClick={() => onItemClick && onItemClick(w)}
+            style={{ display:'flex', flexDirection:'column', alignItems:'center',
+              gap:4, background:'none', border:'none', padding:0,
+              cursor:onItemClick?'pointer':'default', flex:'0 0 auto' }}>
+            <div style={{ width:54, height:54, borderRadius:'50%',
+              backgroundColor:P.color.white,
+              border:`1.5px solid ${P.color.sand}`,
+              display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <Icon name={w.icon || 'gift'} size={22} color={P.color.green}/>
+            </div>
+            <span style={{ fontFamily:P.font.body, fontSize:11, fontWeight:600,
+              color:P.color.black, lineHeight:1.2 }}>{w.label}</span>
+            <span style={{ fontFamily:P.font.ui, fontSize:10, fontWeight:700,
+              color:P.color.ink3 }}>${w.price ?? w.goal}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -4675,18 +4670,13 @@ function ScreenProfileV2({ nav, saveGoals }) {
   const [toastVis, setToastVis] = React.useState(false);
 
   React.useEffect(() => {
-    const fromGoals = (saveGoals || []).map(g => ({
-      id:g.id,
-      label:g.name,
-      saved:g.current,
-      goal:g.target,
-      cat:g.cat
-    }));
-    const wishSeeds = [
-      { id:'wish-stalled-ipad', label:'iPad Mini', saved:0, goal:600, cat:'education' },
-      { id:'wish-stalled-bike', label:'City Bike', saved:0, goal:850, cat:'fitness' },
-    ];
-    setWishes([...fromGoals, ...wishSeeds]);
+    setWishes([
+      { id:'achieved-skincare', label:'Skincare', price:120,  icon:'skincare', saved:120,  goal:120  },
+      { id:'achieved-sofa',     label:'Sofa',     price:680,  icon:'sofa',     saved:680,  goal:680  },
+      { id:'achieved-laptop',   label:'Laptop',   price:1400, icon:'laptop',   saved:1400, goal:1400 },
+      { id:'achieved-iphone',   label:'iPhone',   price:999,  icon:'iphone',   saved:999,  goal:999  },
+      { id:'achieved-speaker',  label:'Speaker',  price:220,  icon:'speaker',  saved:220,  goal:220  },
+    ]);
   }, [saveGoals]);
 
   const showToast = msg => {
@@ -4725,6 +4715,21 @@ function ScreenProfileV2({ nav, saveGoals }) {
           </div>
         </div>
 
+        {/* Tagline card */}
+        <div style={{ backgroundColor:P.color.sand, borderRadius:P.r.lg,
+          padding:'14px 16px', marginBottom:18, display:'flex',
+          alignItems:'center', gap:12 }}>
+          <div style={{ flex:1 }}>
+            <p style={{ margin:'0 0 4px', fontFamily:P.font.body, fontWeight:700,
+              fontSize:13, color:P.color.black }}>This is not just a profile.</p>
+            <p style={{ margin:0, fontFamily:P.font.body, fontSize:12,
+              color:P.color.ink2, lineHeight:1.5 }}>
+              A space where you see your progress, your discipline, and the version of yourself you are becoming.
+            </p>
+          </div>
+          <PigMascot size={64} style={{ flexShrink:0 }}/>
+        </div>
+
         {/* Stats row */}
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr',
           gap:10, marginBottom:24 }}>
@@ -4754,7 +4759,7 @@ function ScreenProfileV2({ nav, saveGoals }) {
           alignItems:'center', marginBottom:12 }}>
           <h2 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:22,
             color:P.color.black, margin:0, letterSpacing:'-.3px' }}>
-            Your Wish Bottle
+            Goals Achieved
           </h2>
           <button onClick={()=>nav('goals')}
             style={{ background:'none', border:'none', cursor:'pointer',
@@ -4771,64 +4776,6 @@ function ScreenProfileV2({ nav, saveGoals }) {
             }
           }}
         />
-        <p style={{ margin:'8px 0 0', fontFamily:P.font.body, fontSize:11, color:P.color.ink3 }}>
-          Wish Bottle syncs with your saving goals. Some are growing, some are waiting.
-        </p>
-
-        {/* My Wish List */}
-        <h3 style={{ fontFamily:P.font.display, fontWeight:700, fontSize:18,
-          color:P.color.black, margin:'16px 0 10px', letterSpacing:'-.2px' }}>
-          My Wish List
-        </h3>
-        <div style={{ overflowX:'auto', paddingBottom:4,
-          marginLeft:-24, paddingLeft:24, marginRight:-24, paddingRight:24 }}>
-          <div style={{ display:'flex', gap:10, alignItems:'flex-start',
-            minWidth:'max-content' }}>
-            <button onClick={()=>setAddWishOpen(true)}
-              style={{ display:'flex', flexDirection:'column', alignItems:'center',
-                gap:6, background:'none', border:'none', cursor:'pointer', flexShrink:0 }}>
-              <div style={{ width:52, height:52, borderRadius:'50%',
-                backgroundColor:P.color.white, border:`2px dashed ${P.color.border}`,
-                display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <Icon name="plus" size={20} color={P.color.green}/>
-              </div>
-              <span style={{ fontFamily:P.font.body, fontSize:10,
-                color:P.color.green, fontWeight:700 }}>Add</span>
-            </button>
-            {wishes.map(w=>{
-              const pct=Math.round((w.saved/w.goal)*100);
-              return (
-                <div key={w.id} style={{ display:'flex', flexDirection:'column',
-                  alignItems:'center', gap:5, flexShrink:0, width:62 }}>
-                  <div style={{ position:'relative', width:52, height:52 }}>
-                    {/* Circular progress ring */}
-                    <svg width="52" height="52" viewBox="0 0 52 52"
-                      style={{ position:'absolute', top:0, left:0 }}>
-                      <circle cx="26" cy="26" r="22" fill="none"
-                        stroke={P.color.stone} strokeWidth="3"/>
-                      <circle cx="26" cy="26" r="22" fill="none"
-                        stroke={P.color.green} strokeWidth="3"
-                        strokeDasharray={`${pct/100*138} 138`}
-                        strokeLinecap="round"
-                        transform="rotate(-90 26 26)"/>
-                    </svg>
-                    <div style={{ position:'absolute', inset:5, borderRadius:'50%',
-                      backgroundColor:P.color.sand, display:'flex',
-                      alignItems:'center', justifyContent:'center' }}>
-                      <span style={{ fontFamily:P.font.ui, fontSize:9, fontWeight:700,
-                        color:P.color.black }}>{pct}%</span>
-                    </div>
-                  </div>
-                  <span style={{ fontFamily:P.font.body, fontSize:9, color:P.color.ink3,
-                    textAlign:'center', lineHeight:1.2, maxWidth:58 }}>
-                    {w.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Achievement Categories */}
         <div style={{ display:'flex', alignItems:'center',
           justifyContent:'space-between', margin:'18px 0 10px' }}>
@@ -4899,7 +4846,7 @@ function ScreenProfileV2({ nav, saveGoals }) {
         </div>
 
         <div style={{ padding:'16px 0 4px' }}>
-          <PBtn label="Sign Out" variant="primary" onClick={()=>nav('welcome')} />
+          <PBtn label="Sign Out" variant="danger" onClick={()=>nav('welcome')} />
         </div>
         <BottomLineNote pad="8px 0 4px" />
       </div>
@@ -5454,7 +5401,7 @@ function App() {
         onNeedSupport={() => { setShowCelebratePopup(false); setShowSupportPopup(true); }}
         title={celebrateCopy.title}
         sub={celebrateCopy.sub}/>
-      <BankUnlockPopup open={showBankUnlock && screen==='home' && !showGuidePopup && !showReflectPopup && !showHomeCoach}
+      <BankUnlockPopup open={showBankUnlock && screen==='home' && !showReflectPopup}
         onClose={() => setShowBankUnlock(false)}
         onConnected={() => {
           localStorage.setItem('penny_bank_link_done', '1');
