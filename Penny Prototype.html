@@ -38,9 +38,10 @@
     display:flex; flex-direction:column;
   }
   .phone-island {
-    position:absolute; top:13px; left:50%; transform:translateX(-50%);
-    width:120px; height:36px; background:#0E0E0C; border-radius:20px;
-    z-index:500; pointer-events:none;
+    /* Positioned relative to bezel; +10px bezel padding means 21 => ~11px inside screen */
+    position:absolute; top:21px; left:50%; transform:translateX(-50%);
+    width:126px; height:37px; background:#0A0A0A; border-radius:21px;
+    z-index:560; pointer-events:none;
   }
   .screen-in  { animation:sIn  .3s cubic-bezier(.4,0,.2,1) both; }
   .screen-out { animation:sOut .3s cubic-bezier(.4,0,.2,1) both; }
@@ -307,30 +308,31 @@ const CAT_META = {
 
 // ─── STATUS BAR (Figma node 30:6354) ─────────────────────────────
 // Bundled PNGs (Figma MCP asset URLs expire; keep local copies for file:// + localhost).
-const FIGMA_STATUSBAR_ICONS = 'assets/ios-statusbar.png';
+const FIGMA_STATUSBAR_ICONS = 'assets/ios-statusbar-icons.svg';
+const FIGMA_HOME_INDICATOR = 'assets/home-indicator.png';
 function StatusBar({ light=false, mode='dark' }) {
   const resolvedMode = light ? 'light' : mode;
   const isLightMode = resolvedMode === 'light'; // white content on dark backgrounds
   const timeColor = isLightMode ? '#FFFFFF' : '#000000';
   return (
-    <div style={{ position:'absolute', top:0, left:0, right:0, height:60,
-      display:'flex', alignItems:'center', zIndex:100, pointerEvents:'none' }}>
-      <div style={{ height:44, width:'100%', position:'relative' }}>
-        <span style={{
-          position:'absolute', left:20, top:'50%', transform:'translateY(-50%)',
-          width:54, textAlign:'center', fontFamily:'"SF Pro Text","Poppins",system-ui,sans-serif',
-          fontWeight:600, fontSize:15, letterSpacing:'-0.165px', color:timeColor
-        }}>9:41</span>
-        <img
-          src={FIGMA_STATUSBAR_ICONS}
-          alt=""
-          style={{
-            position:'absolute', right:14, top:'50%', transform:'translateY(-50%)',
-            width:68, height:14, objectFit:'contain',
-            filter:isLightMode ? 'brightness(0) invert(1)' : 'none',
-            opacity:isLightMode ? 0.96 : 1
-          }}
-        />
+    <div style={{ position:'sticky', top:0, height:0, zIndex:150, pointerEvents:'none' }}>
+      <div style={{ height:60, display:'flex', alignItems:'center' }}>
+        <div style={{ height:44, width:390, margin:'0 auto', position:'relative' }}>
+          <span style={{
+            position:'absolute', left:47, top:'50%', transform:'translate(-50%,-50%)',
+            width:54, textAlign:'center', fontFamily:'"SF Pro Text","Poppins",system-ui,sans-serif',
+            fontWeight:600, fontSize:15, letterSpacing:'-0.165px', color:timeColor
+          }}>9:41</span>
+          <img
+            src={FIGMA_STATUSBAR_ICONS}
+            alt=""
+            style={{
+              position:'absolute', right:14, top:'50%', transform:'translateY(-50%)',
+              width:68, height:14, objectFit:'contain',
+              filter:isLightMode ? 'brightness(0) invert(1)' : 'none'
+            }}
+          />
+        </div>
       </div>
     </div>
   );
@@ -341,9 +343,24 @@ function HomeIndicator({ light=false, z=120 }) {
   const barColor = light ? '#FFFFFF' : '#000000';
   return (
     <div style={{ position:'absolute', left:0, right:0, bottom:8,
-      height:5, display:'flex', justifyContent:'center', pointerEvents:'none', zIndex:z }}>
-      <div style={{ width:134, height:5, borderRadius:3,
-        backgroundColor:barColor, opacity: light ? 0.92 : 0.86 }}/>
+      height:8, display:'flex', justifyContent:'center', alignItems:'center', pointerEvents:'none', zIndex:z }}>
+      <div style={{ position:'relative', width:134, height:6, borderRadius:999, overflow:'hidden' }}>
+        {/* Fallback so indicator stays visible even if transparent asset is too faint */}
+        <div style={{ position:'absolute', inset:0, borderRadius:999, backgroundColor:barColor, opacity:light?0.95:0.9 }}/>
+        <img
+          src={FIGMA_HOME_INDICATOR}
+          alt=""
+          style={{
+            position:'absolute',
+            inset:0,
+            width:'100%',
+            height:'100%',
+            objectFit:'cover',
+            filter: light ? 'invert(1)' : 'none',
+            opacity: 0.96
+          }}
+        />
+      </div>
     </div>
   );
 }
